@@ -1,0 +1,235 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* --- IMPORTANT: Do not delete these lines! Tailwind needs them to work! --- */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-heading: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, text-decoration-color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ==========================================
+   💼 FINANCIAL THEMES & ACCESSIBILITY CONTROLS
+   ========================================== */
+
+/* 1. Light Theme */
+html[data-theme="light"] {
+  --background: oklch(0.99 0.005 240);
+  --foreground: oklch(0.15 0.015 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.015 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.015 240);
+  --primary: oklch(0.60 0.18 250);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.01 240);
+  --secondary-foreground: oklch(0.15 0.015 240);
+  --muted: oklch(0.96 0.01 240);
+  --muted-foreground: oklch(0.55 0.02 240);
+  --accent: oklch(0.96 0.01 240);
+  --accent-foreground: oklch(0.15 0.015 240);
+  --border: oklch(0.92 0.01 240);
+  --input: oklch(0.92 0.01 240);
+  --ring: oklch(0.60 0.18 250);
+}
+
+/* 2. Dark Bloomberg Deep Navy */
+html[data-theme="dark"] {
+  --background: #0b0f19;
+  --foreground: #f3f4f6;
+  --card: #111827;
+  --card-foreground: #f3f4f6;
+  --popover: #111827;
+  --popover-foreground: #f3f4f6;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1f2937;
+  --secondary-foreground: #f3f4f6;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --accent: #1f2937;
+  --accent-foreground: #f3f4f6;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #3b82f6;
+}
+
+/* 3. OLED pitch black */
+html[data-theme="oled"] {
+  --background: #000000;
+  --foreground: #f3f4f6;
+  --card: #0b0b0c;
+  --card-foreground: #f3f4f6;
+  --popover: #0b0b0c;
+  --popover-foreground: #f3f4f6;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #161617;
+  --secondary-foreground: #f3f4f6;
+  --muted: #161617;
+  --muted-foreground: #9ca3af;
+  --accent: #161617;
+  --accent-foreground: #f3f4f6;
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #2563eb;
+}
+
+/* 4. Sepia Warm Cream */
+html[data-theme="sepia"] {
+  --background: #fdfbf7;
+  --foreground: #2d251e;
+  --card: #f7f3eb;
+  --card-foreground: #2d251e;
+  --popover: #f7f3eb;
+  --popover-foreground: #2d251e;
+  --primary: #a0522d;
+  --primary-foreground: #ffffff;
+  --secondary: #ede6d9;
+  --secondary-foreground: #2d251e;
+  --muted: #ede6d9;
+  --muted-foreground: #7c6855;
+  --accent: #ede6d9;
+  --accent-foreground: #2d251e;
+  --border: #dfd5c3;
+  --input: #dfd5c3;
+  --ring: #a0522d;
+}
+
+/* Colorblind Mode Override */
+html[data-colorblind="true"] {
+  /* Financial Gain Colors: Swap from Green to Blue */
+  .text-green-500,
+  .text-emerald-500,
+  .text-green-400,
+  .text-emerald-400,
+  .text-green-600,
+  .text-emerald-600 {
+    color: #2563eb !important; /* Vivid Blue */
+  }
+  .bg-green-500,
+  .bg-emerald-500,
+  .bg-green-600,
+  .bg-emerald-600 {
+    background-color: #2563eb !important;
+  }
+  .border-green-500,
+  .border-emerald-500 {
+    border-color: #2563eb !important;
+  }
+
+  /* Financial Loss Colors: Swap from Red to vivid Orange */
+  .text-red-500,
+  .text-rose-500,
+  .text-red-400,
+  .text-rose-400,
+  .text-destructive {
+    color: #ea580c !important; /* Vivid Orange */
+  }
+  .bg-red-500,
+  .bg-rose-500,
+  .bg-destructive,
+  .bg-red-600,
+  .bg-rose-600 {
+    background-color: #ea580c !important;
+  }
+  .border-red-500,
+  .border-rose-500,
+  .border-destructive {
+    border-color: #ea580c !important;
+  }
+}
+
+/* Privacy Mask Blur Effect */
+html[data-privacy-mask="true"] .privacy-mask {
+  filter: blur(6px);
+  transition: filter 0.2s ease-in-out;
+  cursor: pointer;
+  user-select: none;
+}
+
+html[data-privacy-mask="true"] .privacy-mask:hover,
+html[data-privacy-mask="true"] .privacy-mask:focus,
+html[data-privacy-mask="true"] .privacy-mask:active {
+  filter: blur(0);
+}
