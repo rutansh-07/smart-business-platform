@@ -11,6 +11,10 @@ export function Projects() {
   const [projects, setProjects] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
+
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("All")
   
   // New Project Form State
   const [name, setName] = useState("")
@@ -108,26 +112,55 @@ export function Projects() {
     }
   }
 
+  // Derived filtered projects
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          project.client.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = statusFilter === "All" || project.status === statusFilter
+    
+    return matchesSearch && matchesStatus
+  })
+
   return (
     <motion.div 
       className="flex flex-col gap-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* Header: Title on top, controls on bottom row */}
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent w-fit pb-1">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent w-fit pb-1">
             Active Projects
           </h1>
-          <p className="text-muted-foreground text-lg">Manage and track your deliverables inside MongoDB.</p>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage and track your deliverables inside MongoDB.</p>
         </div>
-        
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Button onClick={() => setIsFormOpen(!isFormOpen)} className="shadow-lg bg-blue-600 hover:bg-blue-700 text-white gap-2 font-semibold">
-            {isFormOpen ? "Close Panel" : "Add Project"}
-            <Plus className={`h-4 w-4 transition-transform duration-300 ${isFormOpen ? "rotate-45" : ""}`} />
-          </Button>
-        </motion.div>
+
+        {/* Controls Row: Search + Filter + Add Button — all in one responsive row */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Search by name or client..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 min-w-[160px] max-w-xs bg-card/60 backdrop-blur h-9 text-sm"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-9 px-3 rounded-md border border-border/50 bg-card/60 backdrop-blur text-sm font-medium focus:outline-none min-w-[130px]"
+          >
+            <option className="bg-card" value="All">All Status</option>
+            <option className="bg-card" value="Planning">Planning</option>
+            <option className="bg-card" value="In Progress">In Progress</option>
+            <option className="bg-card" value="Completed">Completed</option>
+          </select>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="ml-auto">
+            <Button onClick={() => setIsFormOpen(!isFormOpen)} className="shadow-lg bg-blue-600 hover:bg-blue-700 text-white gap-2 font-semibold h-9 text-sm whitespace-nowrap">
+              {isFormOpen ? "Close" : "Add Project"}
+              <Plus className={`h-4 w-4 transition-transform duration-300 ${isFormOpen ? "rotate-45" : ""}`} />
+            </Button>
+          </motion.div>
+        </div>
       </div>
 
       {/* Expandable Add Project Form */}
@@ -215,8 +248,12 @@ export function Projects() {
           className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-border/50 rounded-xl bg-card/20 backdrop-blur text-center"
         >
           <Briefcase className="h-12 w-12 text-muted-foreground opacity-50 mb-4" />
-          <h3 className="text-lg font-bold">No Projects Found in DB</h3>
-          <p className="text-muted-foreground max-w-sm mt-1">Get started by creating your very first project using the "Add Project" button above!</p>
+          <h3 className="text-lg font-bold">No Projects Found</h3>
+          <p className="text-muted-foreground max-w-sm mt-1">
+            {projects.length === 0 
+              ? 'Get started by creating your very first project using the "Add Project" button above!'
+              : 'Try adjusting your search or filters.'}
+          </p>
         </motion.div>
       ) : (
         <motion.div 
@@ -224,7 +261,7 @@ export function Projects() {
           layout
         >
           <AnimatePresence>
-            {projects.map((project) => {
+            {filteredProjects.map((project) => {
               const { icon: Icon, color } = getStatusIcon(project.status)
               return (
                 <motion.div 

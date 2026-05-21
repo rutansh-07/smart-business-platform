@@ -46,15 +46,15 @@ export function Analytics() {
       animate="visible"
     >
       {/* Page Title Header */}
-      <motion.div variants={itemVariants} className="flex flex-col gap-2">
-        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent w-fit pb-1">
-          Analytics & Performance Reports
+      <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent w-fit pb-1">
+          Analytics & Reports
         </h1>
-        <p className="text-muted-foreground text-lg">Detailed analysis of your monthly enterprise revenues and customer traffic sources.</p>
+        <p className="text-sm sm:text-base text-muted-foreground">Detailed analysis of your monthly enterprise revenues and customer traffic sources.</p>
       </motion.div>
 
       {/* Top Level Metric Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
           <Card className="glass-panel border-none shadow-lg h-full bg-card/60 backdrop-blur">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -122,7 +122,7 @@ export function Analytics() {
             <CardContent className="flex-1 flex flex-col justify-between pt-6">
               
               {/* Interactive Dynamic Chart Bars */}
-              <div className="h-[280px] flex items-end justify-between gap-3 px-2 border-b border-border/50 pb-4 relative">
+              <div className="h-[200px] sm:h-[280px] flex items-end justify-between gap-2 sm:gap-3 px-2 border-b border-border/50 pb-4 relative">
                 
                 {/* Floating Chart Tooltip */}
                 {hoveredMonth !== null && (

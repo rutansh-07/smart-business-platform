@@ -13,7 +13,9 @@ export function Settings() {
   // Profile State
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [avatar, setAvatar] = useState("")
   const [isSavingProfile, setIsSavingProfile] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   // Security State
   const [currentPassword, setCurrentPassword] = useState("")
@@ -37,6 +39,7 @@ export function Settings() {
       const parsed = JSON.parse(savedUser)
       setName(parsed.name || "")
       setEmail(parsed.email || "")
+      setAvatar(parsed.avatar || "")
     }
   }, [])
 
@@ -49,11 +52,11 @@ export function Settings() {
 
     try {
       setIsSavingProfile(true)
-      const response = await api.put("/api/auth/profile", { name, email })
+      const response = await api.put("/api/auth/profile", { name, email, avatar })
       
       // Update local storage so the Navbar instantly changes too!
       const savedUser = JSON.parse(localStorage.getItem("smartbiz_user") || "{}")
-      const updatedUser = { ...savedUser, name: response.data.name, email: response.data.email }
+      const updatedUser = { ...savedUser, name: response.data.name, email: response.data.email, avatar: response.data.avatar }
       localStorage.setItem("smartbiz_user", JSON.stringify(updatedUser))
 
       toast.success("Profile information updated successfully!")
@@ -61,6 +64,29 @@ export function Settings() {
       toast.error(error.response?.data?.message || "Failed to update profile.")
     } finally {
       setIsSavingProfile(false)
+    }
+  }
+
+  // Upload Avatar Image
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0]
+    const formData = new FormData()
+    formData.append("image", file)
+
+    try {
+      setIsUploading(true)
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+      const { data } = await api.post("/api/upload", formData, config)
+      setAvatar(data)
+      toast.success("Image uploaded successfully! Click 'Save Profile' to apply.")
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Image upload failed.")
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -134,45 +160,36 @@ export function Settings() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent w-fit pb-1">
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent w-fit pb-1">
           Account Settings
         </h1>
-        <p className="text-muted-foreground text-lg">Manage your profile updates, security, alerts, and SaaS developer settings.</p>
+        <p className="text-sm sm:text-base text-muted-foreground">Manage your profile, security, alerts, and developer settings.</p>
       </div>
 
       <div className="grid gap-8 md:grid-cols-[250px_1fr]">
         
-        {/* Left Interactive Sidebar Nav - Dynamic Flex (Row on Mobile, Column on Desktop) */}
-        <div className="flex flex-row overflow-x-auto md:flex-col gap-2 pb-3 md:pb-0 text-sm font-medium scrollbar-none snap-x whitespace-nowrap w-full">
-          <Button 
-            onClick={() => setActiveTab("profile")}
-            variant={activeTab === "profile" ? "secondary" : "ghost"} 
-            className="justify-start shadow-sm font-semibold gap-2 flex-shrink-0 snap-center cursor-pointer"
-          >
-            <User className="h-4 w-4 text-blue-500" /> Profile Information
-          </Button>
-          <Button 
-            onClick={() => setActiveTab("security")}
-            variant={activeTab === "security" ? "secondary" : "ghost"} 
-            className="justify-start font-semibold gap-2 flex-shrink-0 snap-center cursor-pointer"
-          >
-            <Shield className="h-4 w-4 text-green-500" /> Passwords & Security
-          </Button>
-          <Button 
-            onClick={() => setActiveTab("notifications")}
-            variant={activeTab === "notifications" ? "secondary" : "ghost"} 
-            className="justify-start font-semibold gap-2 flex-shrink-0 snap-center cursor-pointer"
-          >
-            <Bell className="h-4 w-4 text-orange-500" /> Notifications & Alerts
-          </Button>
-          <Button 
-            onClick={() => setActiveTab("apikeys")}
-            variant={activeTab === "apikeys" ? "secondary" : "ghost"} 
-            className="justify-start font-semibold gap-2 flex-shrink-0 snap-center cursor-pointer"
-          >
-            <Key className="h-4 w-4 text-purple-500" /> Developer API Keys
-          </Button>
+        {/* Left Interactive Sidebar Nav */}
+        <div className="flex flex-row overflow-x-auto scrollbar-none md:flex-col gap-1.5 pb-2 md:pb-0 text-sm font-medium snap-x shrink-0">
+          {[
+            { key: "profile", icon: User, color: "text-blue-500", label: "Profile" },
+            { key: "security", icon: Shield, color: "text-green-500", label: "Security" },
+            { key: "notifications", icon: Bell, color: "text-orange-500", label: "Notifications" },
+            { key: "apikeys", icon: Key, color: "text-purple-500", label: "API Keys" },
+          ].map(({ key, icon: Icon, color, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold whitespace-nowrap snap-center transition-all cursor-pointer shrink-0 text-left ${
+                activeTab === key
+                  ? "bg-secondary text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              }`}
+            >
+              <Icon className={`h-4 w-4 shrink-0 ${color}`} />
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Right Tab Content Rendering Area */}
@@ -189,6 +206,32 @@ export function Settings() {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleUpdateProfile} className="space-y-4">
+                      
+                      {/* Avatar Upload Section */}
+                      <div className="flex items-center gap-6 mb-6 pb-6 border-b border-border/50">
+                        <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-primary/20 bg-muted flex items-center justify-center shrink-0">
+                          {avatar ? (
+                            <img src={avatar} alt="Avatar" className="h-full w-full object-cover" />
+                          ) : (
+                            <User className="h-10 w-10 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Profile Picture</label>
+                          <div className="flex items-center gap-3">
+                            <Input 
+                              type="file" 
+                              id="image-file" 
+                              onChange={uploadFileHandler}
+                              className="text-xs max-w-[250px] cursor-pointer"
+                              accept="image/*"
+                            />
+                            {isUploading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+                          </div>
+                          <p className="text-xs text-muted-foreground">JPG, PNG or GIF up to 5MB.</p>
+                        </div>
+                      </div>
+
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Full Name</label>
                         <Input 

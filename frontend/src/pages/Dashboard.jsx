@@ -60,15 +60,15 @@ export function Dashboard() {
       animate="visible"
     >
       {/* Title Header */}
-      <motion.div variants={itemVariants} className="flex flex-col gap-2">
-        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent w-fit pb-1">
+      <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent w-fit pb-1">
           Dashboard Overview
         </h1>
-        <p className="text-muted-foreground text-lg">Welcome back! Hover over cards for 3D perspective and see the latest enterprise metrics.</p>
+        <p className="text-sm sm:text-base text-muted-foreground">Welcome back! Hover over cards for 3D perspective and see the latest enterprise metrics.</p>
       </motion.div>
 
       {/* 4 Metric Cards with Parallax-Tilt 3D Effects */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         
         {/* Metric 1: Total Revenue */}
         <motion.div variants={itemVariants}>
@@ -164,7 +164,7 @@ export function Dashboard() {
             <CardContent className="pt-6 relative flex-1 flex flex-col justify-end">
               
               {/* Interactive bars representation */}
-              <div className="h-[230px] flex items-end justify-between gap-3 px-2 border-b border-border/50 pb-4 relative">
+              <div className="h-[180px] sm:h-[230px] flex items-end justify-between gap-2 sm:gap-3 px-2 border-b border-border/50 pb-4 relative">
                 
                 {/* Floating tooltip */}
                 {hoveredMonth !== null && (

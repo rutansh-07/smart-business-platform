@@ -3,11 +3,10 @@ import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Loader2 } from "lucide-react"
+import { Building2, Loader2, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 import axios from "axios"
 import { toast } from "sonner"
-
 import { ParticlesBackground } from "../components/ParticlesBackground"
 
 export function Register() {
@@ -21,16 +20,9 @@ export function Register() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await axios.post("/api/auth/register", {
-        name,
-        email,
-        password,
-      })
-      
-      // Store token in localStorage
+      const response = await axios.post("/api/auth/register", { name, email, password })
       localStorage.setItem("smartbiz_token", response.data.token)
       localStorage.setItem("smartbiz_user", JSON.stringify(response.data))
-      
       toast.success("Account created successfully! Welcome to SmartBiz.")
       navigate("/dashboard")
     } catch (error) {
@@ -41,97 +33,121 @@ export function Register() {
   }
 
   return (
-    <div className="relative w-full flex items-center justify-center min-h-[80vh] overflow-hidden py-12 px-4">
+    <div className="relative w-full flex flex-col items-center justify-center min-h-screen overflow-hidden py-8 px-4">
       <ParticlesBackground />
-      <motion.div 
-        className="relative z-10 w-full flex items-center justify-center"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", bounce: 0.4, duration: 0.8 }}
+
+      {/* Brand Header */}
+      <motion.div
+        className="relative z-10 flex flex-col items-center mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-      <Card className="w-full max-w-[400px] mx-auto shadow-2xl border-none bg-card/60 backdrop-blur">
-        <CardHeader className="space-y-2 text-center pb-6">
-          <motion.div 
-            className="flex justify-center mb-4"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="p-3 bg-purple-500/10 rounded-full">
-              <Building2 className="h-8 w-8 text-purple-500" />
-            </div>
-          </motion.div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
-          <CardDescription>
-            Enter your details to get started with SmartBiz
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none" htmlFor="name">
-                Full Name
-              </label>
-              <Input 
-                id="name" 
-                placeholder="Rahul Sharma" 
-                required 
-                className="bg-background/50"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none" htmlFor="email">
-                Email
-              </label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="rahul.sharma@example.in" 
-                required 
-                className="bg-background/50"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none" htmlFor="password">
-                Password
-              </label>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                className="bg-background/50"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <motion.div whileHover={!isLoading ? { scale: 1.03 } : {}} whileTap={!isLoading ? { scale: 0.97 } : {}}>
-              <Button type="submit" disabled={isLoading} className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  "Sign Up"
-                )}
-              </Button>
-            </motion.div>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center border-t border-border/50 pt-4">
-          <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/login" className="text-purple-500 hover:underline font-medium">
-              Sign in
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
-    </motion.div>
+        <div className="flex items-center gap-2.5 mb-3">
+          <div className="p-2 bg-primary/10 rounded-xl border border-primary/20">
+            <Building2 className="h-6 w-6 text-primary" />
+          </div>
+          <span className="text-2xl font-extrabold tracking-tight">SmartBiz</span>
+        </div>
+        <p className="text-sm text-muted-foreground text-center max-w-[260px]">
+          Enterprise CRM & Project Intelligence Platform
+        </p>
+      </motion.div>
+
+      <motion.div
+        className="relative z-10 w-full max-w-[420px]"
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", bounce: 0.3, duration: 0.6, delay: 0.1 }}
+      >
+        <Card className="w-full shadow-2xl border border-border/40 bg-card/80 backdrop-blur-xl">
+          <CardHeader className="space-y-1 pb-5">
+            <CardTitle className="text-xl font-bold tracking-tight">Create your account</CardTitle>
+            <CardDescription>
+              Get started with SmartBiz for free — no credit card required
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="name">Full Name</label>
+                <Input
+                  id="name"
+                  placeholder="Rahul Sharma"
+                  required
+                  className="bg-background/50 h-10"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="email">Email address</label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="rahul.sharma@example.in"
+                  required
+                  className="bg-background/50 h-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor="password">Password</label>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  placeholder="At least 6 characters"
+                  className="bg-background/50 h-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              <motion.div whileHover={!isLoading ? { scale: 1.02 } : {}} whileTap={!isLoading ? { scale: 0.98 } : {}}>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full mt-2 h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
+                </Button>
+              </motion.div>
+            </form>
+          </CardContent>
+
+          <CardFooter className="flex justify-center border-t border-border/50 pt-4">
+            <p className="text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link to="/login" className="text-primary hover:underline font-semibold">
+                Sign in instead
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+
+        {/* Trust badge */}
+        <motion.div
+          className="flex items-center justify-center gap-1.5 mt-5 text-xs text-muted-foreground"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Zap className="h-3 w-3 text-primary/60" />
+          <span>Secured with JWT authentication & bcrypt encryption</span>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }

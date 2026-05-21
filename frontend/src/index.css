@@ -80,12 +80,49 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, text-decoration-color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
+  }
+  *:focus-visible {
+    @apply outline-2 outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
   }
+  /* Prevent horizontal scroll on any viewport */
+  html, body {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+}
+
+/* ==========================================
+   🎨 GLASS-PANEL UTILITY (properly defined)
+   ========================================== */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme="light"] .glass-panel,
+html[data-theme="sepia"] .glass-panel {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* ==========================================
+   🚫 SCROLLBAR UTILITIES
+   ========================================== */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* ==========================================
@@ -115,22 +152,22 @@ html[data-theme="light"] {
 
 /* 2. Dark Bloomberg Deep Navy */
 html[data-theme="dark"] {
-  --background: #0b0f19;
-  --foreground: #f3f4f6;
-  --card: #111827;
-  --card-foreground: #f3f4f6;
-  --popover: #111827;
-  --popover-foreground: #f3f4f6;
+  --background: #080d16;
+  --foreground: #f0f4ff;
+  --card: #0f1624;
+  --card-foreground: #f0f4ff;
+  --popover: #0f1624;
+  --popover-foreground: #f0f4ff;
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  --secondary: #1f2937;
-  --secondary-foreground: #f3f4f6;
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af;
-  --accent: #1f2937;
-  --accent-foreground: #f3f4f6;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.1);
+  --secondary: #1a2236;
+  --secondary-foreground: #f0f4ff;
+  --muted: #1a2236;
+  --muted-foreground: #8b9ab8;
+  --accent: #1a2236;
+  --accent-foreground: #f0f4ff;
+  --border: rgba(255, 255, 255, 0.07);
+  --input: rgba(255, 255, 255, 0.09);
   --ring: #3b82f6;
 }
 
@@ -232,4 +269,40 @@ html[data-privacy-mask="true"] .privacy-mask:hover,
 html[data-privacy-mask="true"] .privacy-mask:focus,
 html[data-privacy-mask="true"] .privacy-mask:active {
   filter: blur(0);
+}
+
+/* ==========================================
+   📐 RESPONSIVE PAGE LAYOUT HELPERS
+   ========================================== */
+.page-container {
+  @apply w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Animated subtle gradient orbs for dark backgrounds */
+html[data-theme="dark"] body::before,
+html[data-theme="oled"] body::before {
+  content: "";
+  position: fixed;
+  top: -30%;
+  left: -20%;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+html[data-theme="dark"] body::after,
+html[data-theme="oled"] body::after {
+  content: "";
+  position: fixed;
+  bottom: -20%;
+  right: -15%;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
