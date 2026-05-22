@@ -7,10 +7,33 @@ import { motion, AnimatePresence } from "framer-motion"
 import api from "../utils/api"
 import { toast } from "sonner"
 
+function ProjectCardSkeleton() {
+  return (
+    <Card className="shadow-md bg-card/60 backdrop-blur border border-border/20 h-full flex flex-col justify-between p-6 space-y-6">
+      <div className="flex justify-between items-start">
+        <div className="space-y-2">
+          <div className="h-5 w-44 bg-muted-foreground/10 rounded animate-pulse" />
+          <div className="h-4 w-32 bg-muted-foreground/10 rounded animate-pulse" />
+        </div>
+        <div className="h-10 w-10 bg-muted-foreground/10 rounded-full animate-pulse" />
+      </div>
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <div className="h-4 w-24 bg-muted-foreground/10 rounded animate-pulse" />
+          <div className="h-4 w-8 bg-muted-foreground/10 rounded animate-pulse" />
+        </div>
+        <div className="w-full bg-muted-foreground/5 rounded-full h-2.5 animate-pulse" />
+        <div className="h-3 w-20 bg-muted-foreground/10 rounded ml-auto animate-pulse" />
+      </div>
+    </Card>
+  )
+}
+
 export function Projects() {
   const [projects, setProjects] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [user, setUser] = useState(null)
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("")
@@ -37,6 +60,10 @@ export function Projects() {
   }
 
   useEffect(() => {
+    const savedUser = localStorage.getItem("smartbiz_user")
+    if (savedUser) {
+      setUser(JSON.parse(savedUser))
+    }
     fetchProjects()
   }, [])
 
@@ -237,9 +264,11 @@ export function Projects() {
 
       {/* Projects List Grid */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-4" />
-          <p className="text-muted-foreground font-medium">Connecting to MongoDB database...</p>
+        <div className="grid gap-6 md:grid-cols-2">
+          <ProjectCardSkeleton />
+          <ProjectCardSkeleton />
+          <ProjectCardSkeleton />
+          <ProjectCardSkeleton />
         </div>
       ) : projects.length === 0 ? (
         <motion.div 
@@ -282,14 +311,16 @@ export function Projects() {
                         <CardDescription className="text-base font-medium text-foreground/70">{project.client}</CardDescription>
                       </div>
                       <div className="flex gap-2">
-                        <Button 
-                          onClick={() => handleDelete(project._id)}
-                          size="icon" 
-                          variant="ghost" 
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {user?.role === "admin" && (
+                          <Button 
+                            onClick={() => handleDelete(project._id)}
+                            size="icon" 
+                            variant="ghost" 
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                         <div className={`p-3 rounded-full bg-background/50 shadow-inner ${color.replace('animate-spin', '')}`}>
                           <Briefcase className="h-5 w-5 text-blue-500" />
                         </div>

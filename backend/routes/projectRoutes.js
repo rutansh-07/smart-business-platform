@@ -5,7 +5,7 @@ import {
   updateProject,
   deleteProject,
 } from "../controllers/projectController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -18,6 +18,6 @@ router.route("/")
 
 router.route("/:id")
   .put(updateProject)
-  .delete(deleteProject);
+  .delete(isAdmin, deleteProject);
 
 export default router;

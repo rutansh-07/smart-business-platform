@@ -16,6 +16,7 @@ export function Settings() {
   const [avatar, setAvatar] = useState("")
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [user, setUser] = useState(null)
 
   // Security State
   const [currentPassword, setCurrentPassword] = useState("")
@@ -37,6 +38,7 @@ export function Settings() {
     const savedUser = localStorage.getItem("smartbiz_user")
     if (savedUser) {
       const parsed = JSON.parse(savedUser)
+      setUser(parsed)
       setName(parsed.name || "")
       setEmail(parsed.email || "")
       setAvatar(parsed.avatar || "")
@@ -175,7 +177,7 @@ export function Settings() {
             { key: "profile", icon: User, color: "text-blue-500", label: "Profile" },
             { key: "security", icon: Shield, color: "text-green-500", label: "Security" },
             { key: "notifications", icon: Bell, color: "text-orange-500", label: "Notifications" },
-            { key: "apikeys", icon: Key, color: "text-purple-500", label: "API Keys" },
+            ...(user?.role === "admin" ? [{ key: "apikeys", icon: Key, color: "text-purple-500", label: "API Keys" }] : []),
           ].map(({ key, icon: Icon, color, label }) => (
             <button
               key={key}
@@ -377,7 +379,7 @@ export function Settings() {
             )}
 
             {/* 4. DEVELOPER API KEYS TAB */}
-            {activeTab === "apikeys" && (
+            {activeTab === "apikeys" && user?.role === "admin" && (
               <motion.div key="apikeys" {...tabContentVariants}>
                 <Card className="glass-panel border-none shadow-lg bg-card/60 backdrop-blur">
                   <CardHeader className="flex flex-row justify-between items-start">

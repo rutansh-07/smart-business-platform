@@ -4,6 +4,7 @@ import { ThemeProvider } from "./components/theme-provider"
 import { MainLayout } from "./components/layout/MainLayout"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { PublicRoute } from "./components/PublicRoute"
+import { AdminRoute } from "./components/AdminRoute"
 import { Toaster } from "@/components/ui/sonner"
 import { Loader2 } from "lucide-react"
 import "./App.css"
@@ -63,7 +64,14 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="projects" element={<Projects />} />
               <Route path="analytics" element={<Analytics />} />
-              <Route path="settings" element={<Settings />} />
+              <Route 
+                path="settings" 
+                element={
+                  <AdminRoute>
+                    <Settings />
+                  </AdminRoute>
+                } 
+              />
             </Route>
 
             {/* Catch-all Redirect */}

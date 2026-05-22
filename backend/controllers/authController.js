@@ -1,8 +1,8 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || "fallback_secret", {
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET || "fallback_secret", {
     expiresIn: "30d",
   });
 };
@@ -33,7 +33,7 @@ export const registerUser = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-        token: generateToken(user._id),
+        token: generateToken(user._id, user.role),
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -61,7 +61,7 @@ export const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-        token: generateToken(user._id),
+        token: generateToken(user._id, user.role),
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
@@ -92,7 +92,7 @@ export const updateUserProfile = async (req, res) => {
         email: updatedUser.email,
         role: updatedUser.role,
         avatar: updatedUser.avatar,
-        token: generateToken(updatedUser._id),
+        token: generateToken(updatedUser._id, updatedUser.role),
       });
     } else {
       res.status(404).json({ message: "User not found" });

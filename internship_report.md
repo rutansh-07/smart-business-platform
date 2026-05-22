@@ -87,6 +87,25 @@ We expanded the platform's features to make it a fully functional ERP tool:
 *   **Live Client-Side Filtering:** Upgraded the Projects dashboard with real-time Search and Status Filter inputs. As the user types a project or client name, or selects a status ("Planning", "In Progress", "Completed"), the project grid updates instantly.
 *   **Dynamic UX Fallbacks:** The empty state of the project grid was upgraded to intelligently differentiate between having zero projects in the database vs. having zero projects matching the current active search filters.
 
+### 🔒 F. Role-Based Access Control (RBAC) (Step 2 - 5)
+*   **Database Schema Upgrades:** Configured Mongoose to assign a default role of `"employee"` to newly registered users to prevent accidental administrative privilege elevation.
+*   **JWT Payload Enrichment:** Baked `role` directly into JSON Web Tokens upon authentication, allowing the frontend client to synchronously inspect permissions without redundant database queries.
+*   **Express Authorization Middleware:** Programmed a secure `isAdmin` route guard in backend middleware. It intercepts sensitive actions (such as project deletion) and returns an instant `403 Forbidden` ("Access denied. Admins only.") if req.user.role !== "admin".
+*   **React UI Conditional Masking:** Wrapped administrative elements (e.g. settings nav tabs, projects delete buttons, API key panels) in granular `{user?.role === "admin" && ...}` conditional statements.
+*   **Frontend Router Guarding:** Built an `<AdminRoute>` React Router wrapper. It synchronously inspects user credentials on mount, rendering children for admins and instantly redirecting standard employees back to the `/dashboard` page to block manual URL manipulation.
+
+### 📊 G. High-Fidelity Chart Readability Coordinate System (Task 7)
+*   **True 90-Degree Axes:** Upgraded raw SVG and DOM charts into professional coordinate graphs featuring a visible vertical Y-axis (`border-l border-border/30`) and a horizontal X-axis (`border-b border-border/30`) meeting cleanly.
+*   **Decoupled Label Alignment:** Re-engineered bottom month label positions by decoupling them into dedicated flex layout rows beneath the coordinate axes. This aligns labels precisely under their corresponding bars and clears bottom border padding overlaps.
+*   **Active Hover Guides:** Implemented a vertical dashed crosshair focus guide line (`border-l border-dashed border-primary/30`) that tracks the mouse pointer to map data points back to active month ticks.
+*   **Neon Highlight Glows:** Enhanced revenue bars with custom glowing linear gradients and interactive drop-shadows (`group-hover:shadow-[0_0_12px_rgba(59,130,246,0.55)]`) to provide professional, real-time visual feedback.
+
+### ⚡ H. High-Fidelity Pulsing Skeleton Loaders (Task 8)
+*   **Performance Shimmers:** Replaced full screen loading spinners and slow, blank page loads with premium pulsing skeletons (`bg-muted/40 animate-pulse`) that perfectly mimic the structural geometry of platform cards and grids.
+*   **Active MongoDB Dashboard Feed:** Upgraded the Dashboard page to dynamically fetch project stats from the MongoDB database, displaying a loading skeleton for 800ms to showcase the shimmer animation before rendering live active metrics.
+*   **Cooperative Channel Analytics Skeletons:** Formulated synchronized progress card skeletons for Analytics channels, traffic acquisition lists, and coordinate graphs.
+*   **Projects Grid Loaders:** Substituted the full screen loading spinner on `/projects` with a high-fidelity 2x2 grid of pulsing project outline cards, maintaining high visual engagement during database connection handshakes.
+
 ---
 
 ## 🔗 5. Global Showcase Integration (ngrok Guide)
@@ -121,6 +140,9 @@ To share the MERN Stack website globally (e.g. showcasing it to an internship su
 *   Streamlined mobile bottom dock by completely hiding the brand logo text, preferences settings sliders, and profile avatars on mobile viewports, replacing them with a dedicated **iOS-style Bottom Navigation Tab Bar** that displays direct, icon-focused links (Dashboard, Projects, Analytics, Settings) for peak mobile efficiency.
 *   Flipped all dynamic settings and profile dropdown orientation upwards (`bottom-full mb-3`) on mobile viewports to prevent menus from flowing off-screen, reverting to downward displays (`lg:top-full lg:mt-3`) on desktop screens.
 *   Integrated a sleek minimalist footer at the bottom of the main layout, padded with a definite vertical margin (`mb-28 lg:mb-0`) to maintain a clean, high-end visual separation from the bottom navbar strictly on mobile/tablet devices.
+*   Programmed an `<AdminRoute>` React Router guard to protect settings and restricted sections from unauthorized URL inputs.
+*   Engineered high-fidelity 90-degree axes grids, decoupled horizontal ticks, active dashed focus crosshairs, and neon glow drop-shadows on custom month-on-month bar charts.
+*   Built pulsing layout skeletons for dashboard metrics, coordinates charts, transaction lists, traffic rows, and responsive project card grids utilizing high-performance CSS animation shimmers.
 
 ---
 **Report generated successfully. Ready to present for academic and corporate internship evaluations!**
