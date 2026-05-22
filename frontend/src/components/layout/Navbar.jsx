@@ -80,7 +80,7 @@ export function Navbar() {
   return (
     <header className="
       fixed bottom-5 left-1/2 -translate-x-1/2
-      w-[calc(100%-2rem)] max-w-lg rounded-2xl
+      w-[calc(100%-2rem)] max-w-xl rounded-2xl
       border border-border/40 bg-card/70 backdrop-blur-xl shadow-2xl
       lg:top-0 lg:bottom-auto lg:left-0 lg:translate-x-0
       lg:w-full lg:max-w-none lg:rounded-none

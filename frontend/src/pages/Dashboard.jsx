@@ -33,14 +33,16 @@ export function Dashboard() {
 
   // Localized Revenue Chart Data (matching Analytics page)
   const monthlyRevenue = [
-    { month: "Jan", revenue: 450000 },
-    { month: "Feb", revenue: 520000 },
-    { month: "Mar", revenue: 490000 },
-    { month: "Apr", revenue: 680000 },
-    { month: "May", revenue: 840000 },
-    { month: "Jun", revenue: 950000 },
+    { month: "Jan", revenue: 450000, projects: 4 },
+    { month: "Feb", revenue: 520000, projects: 6 },
+    { month: "Mar", revenue: 490000, projects: 5 },
+    { month: "Apr", revenue: 680000, projects: 8 },
+    { month: "May", revenue: 840000, projects: 12 },
+    { month: "Jun", revenue: 950000, projects: 15 },
   ]
   const maxRevenue = Math.max(...monthlyRevenue.map((d) => d.revenue))
+  const yMax = Math.ceil(maxRevenue / 100000) * 100000
+  const yTicks = Array.from({ length: 5 }, (_, i) => yMax - (yMax / 4) * i)
 
   // Tilt settings for uniform premium feel
   const tiltOptions = {
@@ -163,47 +165,83 @@ export function Dashboard() {
             </CardHeader>
             <CardContent className="pt-6 relative flex-1 flex flex-col justify-end">
               
-              {/* Interactive bars representation */}
-              <div className="h-[180px] sm:h-[230px] flex items-end justify-between gap-2 sm:gap-3 px-2 border-b border-border/50 pb-4 relative">
+              {/* Flex container for Y-axis + Chart area */}
+              <div className="flex gap-2 sm:gap-4 items-stretch h-[180px] sm:h-[230px]">
                 
-                {/* Floating tooltip */}
-                {hoveredMonth !== null && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="absolute top-0 left-1/2 -translate-x-1/2 bg-popover border border-border p-2 rounded-lg shadow-xl text-xs z-20 flex flex-col gap-0.5 w-40"
-                  >
-                    <p className="font-bold text-foreground">{monthlyRevenue[hoveredMonth].month}</p>
-                    <div className="flex items-center justify-between text-muted-foreground mt-0.5">
-                      <span>Revenue:</span>
-                      <span className="font-bold text-blue-500 privacy-mask">₹{monthlyRevenue[hoveredMonth].revenue.toLocaleString("en-IN")}</span>
-                    </div>
-                  </motion.div>
-                )}
+                {/* Y-Axis Labels */}
+                <div className="flex flex-col justify-between text-[9px] sm:text-[11px] text-muted-foreground font-semibold pr-1 sm:pr-2 select-none text-right w-10 sm:w-14 pb-6">
+                  {yTicks.map((tick) => (
+                    <span key={tick}>
+                      {tick >= 100000 
+                        ? `₹${(tick / 100000).toFixed(1).replace(".0", "")}L` 
+                        : `₹${tick}`}
+                    </span>
+                  ))}
+                </div>
 
-                {monthlyRevenue.map((d, index) => {
-                  const heightPercentage = (d.revenue / maxRevenue) * 100
-                  return (
-                    <div 
-                      key={d.month} 
-                      className="flex flex-col items-center flex-1 h-full justify-end cursor-pointer group"
-                      onMouseEnter={() => setHoveredMonth(index)}
-                      onMouseLeave={() => setHoveredMonth(null)}
+                {/* Chart Area with Gridlines & Bars */}
+                <div className="flex-1 relative h-full flex items-end justify-between gap-2 sm:gap-3 px-2 border-b border-border/30 pb-6">
+                  
+                  {/* Faint Horizontal Gridlines */}
+                  <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none z-0">
+                    {yTicks.map((tick) => (
+                      <div 
+                        key={tick} 
+                        className="w-full border-t border-border/10"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Dynamic hovering tooltip positioned relative to chart area */}
+                  {hoveredMonth !== null && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      className="absolute -top-14 -translate-x-1/2 bg-popover/90 border border-border/80 p-2 sm:p-2.5 rounded-lg shadow-xl text-[10px] sm:text-xs z-30 flex flex-col gap-0.5 w-36 sm:w-40 backdrop-blur-md transition-all duration-150 pointer-events-none"
+                      style={{ 
+                        left: `${((hoveredMonth + 0.5) / monthlyRevenue.length) * 100}%` 
+                      }}
                     >
-                      <div className="relative w-full flex justify-center h-full items-end">
-                        <motion.div 
-                          className="w-full rounded-t-sm bg-gradient-to-t from-blue-600 to-indigo-500 group-hover:from-blue-500 group-hover:to-indigo-400 opacity-80 group-hover:opacity-100 transition-opacity shadow-md"
-                          initial={{ height: 0 }}
-                          animate={{ height: `${heightPercentage}%` }}
-                          transition={{ duration: 0.8, ease: "easeOut" }}
-                        />
+                      <div className="flex items-center justify-between font-bold border-b border-border/30 pb-1">
+                        <span className="text-foreground">{monthlyRevenue[hoveredMonth].month}</span>
+                        <span className="text-[9px] text-muted-foreground uppercase font-black">H1 Revenue</span>
                       </div>
-                      <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground mt-2 group-hover:text-foreground transition-colors">
-                        {d.month}
-                      </span>
-                    </div>
-                  )
-                })}
+                      <div className="flex items-center justify-between text-muted-foreground mt-1">
+                        <span>Revenue:</span>
+                        <span className="font-bold text-blue-500 privacy-mask">₹{monthlyRevenue[hoveredMonth].revenue.toLocaleString("en-IN")}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-muted-foreground">
+                        <span>Contracts:</span>
+                        <span className="font-bold text-foreground">{monthlyRevenue[hoveredMonth].projects} Active</span>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Bars */}
+                  {monthlyRevenue.map((d, index) => {
+                    const heightPercentage = (d.revenue / yMax) * 100
+                    return (
+                      <div 
+                        key={d.month} 
+                        className="flex flex-col items-center flex-1 h-full justify-end cursor-pointer group z-10"
+                        onMouseEnter={() => setHoveredMonth(index)}
+                        onMouseLeave={() => setHoveredMonth(null)}
+                      >
+                        <div className="relative w-full flex justify-center h-full items-end">
+                          <motion.div 
+                            className="w-8 sm:w-12 rounded-t-sm bg-gradient-to-t from-blue-600 to-indigo-500 group-hover:from-blue-500 group-hover:to-indigo-400 opacity-80 group-hover:opacity-100 transition-opacity shadow-md"
+                            initial={{ height: 0 }}
+                            animate={{ height: `${heightPercentage}%` }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                          />
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground mt-2 group-hover:text-foreground transition-colors absolute bottom-0">
+                          {d.month}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
 
             </CardContent>
