@@ -145,4 +145,13 @@ To share the MERN Stack website globally (e.g. showcasing it to an internship su
 *   Built pulsing layout skeletons for dashboard metrics, coordinates charts, transaction lists, traffic rows, and responsive project card grids utilizing high-performance CSS animation shimmers.
 
 ---
+### 🐛 Bug I: Disconnected Frontend & Backend Architecture
+*   **The Issue:** The React/Vite frontend (Port 5173) and Node/Express backend (Port 5000) felt disconnected because they required running separately without centralized orchestration. Additionally, uploaded user avatars (served via `/uploads` on the backend) were failing with 404 errors on the frontend because Vite was only proxying `/api` requests.
+*   **The Cause:** Missing root-level monorepo orchestrator scripts and incomplete Vite dev server proxy rules.
+*   **The Solution:** 
+    1. Created a root `package.json` utilizing the `concurrently` package to seamlessly launch both servers with a single unified `npm run dev` command.
+    2. Added `start` and `dev` (`node --watch server.js`) scripts natively into the backend configuration.
+    3. Expanded `vite.config.js` to securely proxy all `/uploads` HTTP traffic to the backend, enabling instantaneous, cross-origin static media rendering in development.
+
+---
 **Report generated successfully. Ready to present for academic and corporate internship evaluations!**
