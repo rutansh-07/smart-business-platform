@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Building2, UserCircle, LogOut, Settings as SettingsIcon, User, SlidersHorizontal, Check, Eye, EyeOff, LayoutDashboard, Briefcase, BarChart3, ChevronDown } from "lucide-react";
+import { Building2, UserCircle, LogOut, Settings as SettingsIcon, User, SlidersHorizontal, Check, Eye, EyeOff, LayoutDashboard, Briefcase, BarChart3, ChevronDown, Crown, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -305,9 +305,19 @@ export function Navbar() {
                       {user?.name ? user.name.charAt(0).toUpperCase() : <UserCircle className="h-4 w-4" />}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-semibold text-foreground max-w-[100px] truncate hidden xl:block">
-                    {user?.name?.split(" ")[0] || "Account"}
-                  </span>
+                  <div className="hidden xl:flex items-center gap-1.5">
+                    <span className="text-sm font-semibold text-foreground max-w-[100px] truncate">
+                      {user?.name?.split(" ")[0] || "Account"}
+                    </span>
+                    <span className="text-[9px] font-bold text-muted-foreground">|</span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                      user?.role === "admin"
+                        ? "bg-amber-500/15 text-amber-500"
+                        : "bg-sky-500/15 text-sky-500"
+                    }`}>
+                      {user?.role === "admin" ? "Owner" : "Employee"}
+                    </span>
+                  </div>
                   <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
@@ -330,7 +340,16 @@ export function Navbar() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold leading-none truncate">{user?.name || "Member"}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-semibold leading-none truncate">{user?.name || "Member"}</p>
+                            <span className={`shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                              user?.role === "admin"
+                                ? "bg-amber-500/15 text-amber-500"
+                                : "bg-sky-500/15 text-sky-500"
+                            }`}>
+                              {user?.role === "admin" ? <><Crown className="h-2.5 w-2.5" /> Owner</> : <><Users className="h-2.5 w-2.5" /> Employee</>}
+                            </span>
+                          </div>
                           <p className="text-xs leading-none text-muted-foreground mt-1 truncate">
                             {user?.email || "member@smartbiz.in"}
                           </p>

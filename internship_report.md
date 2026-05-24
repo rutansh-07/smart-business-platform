@@ -152,6 +152,10 @@ To share the MERN Stack website globally (e.g. showcasing it to an internship su
     1. Created a root `package.json` utilizing the `concurrently` package to seamlessly launch both servers with a single unified `npm run dev` command.
     2. Added `start` and `dev` (`node --watch server.js`) scripts natively into the backend configuration.
     3. Expanded `vite.config.js` to securely proxy all `/uploads` HTTP traffic to the backend, enabling instantaneous, cross-origin static media rendering in development.
+### 👤 Feature J: Role-Differentiated Registration & Navbar Role Badge
+*   **Registration Form Upgrade:** Added a premium dual-toggle role selector to the `/register` page, allowing new users to explicitly choose between **Owner / Admin** (with a Crown icon and full platform access) and **Employee** (with a Users icon and standard team-member permissions). The selected role is securely transmitted to the backend and stored in the MongoDB `User` document, bypassing the need for manual database edits.
+*   **Backend Controller Upgrade:** Modified `authController.js` to accept an optional `role` field from the registration request body. The Mongoose enum validator (`"admin"` | `"employee"`) ensures only valid roles are persisted, with a safe default fallback to `"employee"`.
+*   **Navbar Role Badge:** Integrated a styled role badge directly into the desktop Navbar profile trigger button and the profile dropdown header. Admin users see a golden **"Owner"** pill with a Crown icon, while standard employees see a blue **"Employee"** pill with a Users icon — providing instant, at-a-glance role identification.
 
 ---
 **Report generated successfully. Ready to present for academic and corporate internship evaluations!**

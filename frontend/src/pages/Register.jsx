@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Loader2, Zap } from "lucide-react"
+import { Building2, Loader2, Zap, Crown, Users, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 import axios from "axios"
 import { toast } from "sonner"
@@ -13,6 +13,8 @@ export function Register() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [role, setRole] = useState("employee")
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -20,7 +22,7 @@ export function Register() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await axios.post("/api/auth/register", { name, email, password })
+      const response = await axios.post("/api/auth/register", { name, email, password, role })
       localStorage.setItem("smartbiz_token", response.data.token)
       localStorage.setItem("smartbiz_user", JSON.stringify(response.data))
       toast.success("Account created successfully! Welcome to SmartBiz.")
@@ -97,15 +99,68 @@ export function Register() {
 
               <div className="space-y-1.5">
                 <label className="text-sm font-medium" htmlFor="password">Password</label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  placeholder="At least 6 characters"
-                  className="bg-background/50 h-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    placeholder="At least 6 characters"
+                    className="bg-background/50 h-10 pr-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors focus:outline-none"
+                  >
+                    <motion.div whileHover={{ scale: 1.2, rotate: showPassword ? -10 : 10 }} whileTap={{ scale: 0.8 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </motion.div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Role Selector */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">I am registering as</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRole("admin")}
+                    className={`relative flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all duration-200 cursor-pointer ${
+                      role === "admin"
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                        : "border-border/60 bg-background/30 hover:border-border hover:bg-muted/30"
+                    }`}
+                  >
+                    <Crown className={`h-5 w-5 transition-colors ${role === "admin" ? "text-primary" : "text-muted-foreground"}`} />
+                    <span className={`text-xs font-bold transition-colors ${role === "admin" ? "text-primary" : "text-muted-foreground"}`}>
+                      Owner / Admin
+                    </span>
+                    <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                      Full platform access
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRole("employee")}
+                    className={`relative flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all duration-200 cursor-pointer ${
+                      role === "employee"
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/10"
+                        : "border-border/60 bg-background/30 hover:border-border hover:bg-muted/30"
+                    }`}
+                  >
+                    <Users className={`h-5 w-5 transition-colors ${role === "employee" ? "text-primary" : "text-muted-foreground"}`} />
+                    <span className={`text-xs font-bold transition-colors ${role === "employee" ? "text-primary" : "text-muted-foreground"}`}>
+                      Employee
+                    </span>
+                    <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                      Standard team member
+                    </span>
+                  </button>
+                </div>
               </div>
 
               <motion.div whileHover={!isLoading ? { scale: 1.02 } : {}} whileTap={!isLoading ? { scale: 0.98 } : {}}>
@@ -151,3 +206,4 @@ export function Register() {
     </div>
   )
 }
+
