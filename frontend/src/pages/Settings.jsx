@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { User, Bell, Shield, Key, Loader2, Check, Copy } from "lucide-react"
+import { User, Bell, Shield, Key, Loader2, Check, Copy, Users } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import api from "../utils/api"
 import { toast } from "sonner"
@@ -32,6 +32,11 @@ export function Settings() {
   // API Keys State
   const [apiKeys, setApiKeys] = useState([])
   const [copiedKeyId, setCopiedKeyId] = useState(null)
+
+  // Invite Team State
+  const [inviteToken, setInviteToken] = useState("")
+  const [copiedInvite, setCopiedInvite] = useState(false)
+  const [isFetchingInvite, setIsFetchingInvite] = useState(false)
 
   // Load user data on mount
   useEffect(() => {
@@ -148,6 +153,34 @@ export function Settings() {
     setTimeout(() => setCopiedKeyId(null), 2000)
   }
 
+  // 6. Fetch/Generate Invite Link
+  const handleFetchInvite = async () => {
+    try {
+      setIsFetchingInvite(true)
+      const { data } = await api.get("/api/workspaces/invite")
+      setInviteToken(data.token)
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to generate invite token.")
+    } finally {
+      setIsFetchingInvite(false)
+    }
+  }
+
+  const handleCopyInvite = () => {
+    const inviteUrl = `${window.location.origin}/join?token=${inviteToken}`
+    navigator.clipboard.writeText(inviteUrl)
+    setCopiedInvite(true)
+    toast.success("Magic Invite Link copied to clipboard!")
+    setTimeout(() => setCopiedInvite(false), 2000)
+  }
+
+  // Fetch invite on load if they open the team tab
+  useEffect(() => {
+    if (activeTab === "team" && !inviteToken) {
+      handleFetchInvite()
+    }
+  }, [activeTab])
+
   // Animation variants
   const tabContentVariants = {
     initial: { opacity: 0, y: 15 },
@@ -177,7 +210,10 @@ export function Settings() {
             { key: "profile", icon: User, color: "text-blue-500", label: "Profile" },
             { key: "security", icon: Shield, color: "text-green-500", label: "Security" },
             { key: "notifications", icon: Bell, color: "text-orange-500", label: "Notifications" },
-            ...(user?.role === "admin" ? [{ key: "apikeys", icon: Key, color: "text-purple-500", label: "API Keys" }] : []),
+            ...(user?.role === "admin" ? [
+              { key: "team", icon: Users, color: "text-blue-500", label: "Invite Team" },
+              { key: "apikeys", icon: Key, color: "text-purple-500", label: "API Keys" }
+            ] : []),
           ].map(({ key, icon: Icon, color, label }) => (
             <button
               key={key}
@@ -432,6 +468,48 @@ export function Settings() {
                         ))}
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* 5. INVITE TEAM TAB */}
+            {activeTab === "team" && user?.role === "admin" && (
+              <motion.div key="team" {...tabContentVariants}>
+                <Card className="glass-panel border-none shadow-lg bg-card/60 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle>Invite Team Members</CardTitle>
+                    <CardDescription>
+                      Share this magic link with your employees. When they click it, they will automatically join your secure company workspace.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-blue-400">Workspace Magic Link</label>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <div className="relative flex-1">
+                          <Input
+                            readOnly
+                            value={isFetchingInvite ? "Generating secure token..." : (inviteToken ? `${window.location.origin}/join?token=${inviteToken}` : "")}
+                            className="bg-black/40 font-mono text-xs pr-10 border-blue-500/30 text-muted-foreground"
+                          />
+                        </div>
+                        <Button 
+                          onClick={handleCopyInvite} 
+                          disabled={!inviteToken || isFetchingInvite}
+                          className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px]"
+                        >
+                          {copiedInvite ? (
+                            <><Check className="h-4 w-4 mr-2" /> Copied</>
+                          ) : (
+                            <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground pt-1">
+                        Anyone with this link can create an employee account inside your workspace.
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>

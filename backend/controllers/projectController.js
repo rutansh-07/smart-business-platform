@@ -5,7 +5,12 @@ import Project from "../models/Project.js";
 // @access  Private
 export const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find({ user: req.user._id });
+    // Filter by the logged-in user's workspace to isolate data
+    // Fallback: If old user has no workspaceId, return empty array instead of throwing Mongoose error
+    if (!req.user.workspaceId) {
+      return res.json([]);
+    }
+    const projects = await Project.find({ workspaceId: req.user.workspaceId });
     res.json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -19,12 +24,17 @@ export const createProject = async (req, res) => {
   try {
     const { name, client, status, progress } = req.body;
 
+    if (!req.user.workspaceId) {
+      return res.status(403).json({ message: "You must belong to a workspace to create projects. Please create a new account." });
+    }
+
     const project = new Project({
       name,
       client,
       status,
       progress,
-      user: req.user._id, // Set the creator ID from request object (loaded by authMiddleware)
+      user: req.user._id, // Set the creator ID
+      workspaceId: req.user.workspaceId, // Isolate to the workspace
     });
 
     const createdProject = await project.save();
@@ -43,9 +53,9 @@ export const updateProject = async (req, res) => {
     const project = await Project.findById(req.params.id);
 
     if (project) {
-      // Verify ownership
-      if (project.user.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ message: "Not authorized to update this project" });
+      // Verify workspace ownership
+      if (project.workspaceId.toString() !== req.user.workspaceId.toString()) {
+        return res.status(403).json({ message: "Not authorized to update this project in this workspace" });
       }
 
       project.name = name || project.name;
@@ -71,9 +81,9 @@ export const deleteProject = async (req, res) => {
     const project = await Project.findById(req.params.id);
 
     if (project) {
-      // Verify ownership
-      if (project.user.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ message: "Not authorized to delete this project" });
+      // Verify workspace ownership
+      if (project.workspaceId.toString() !== req.user.workspaceId.toString()) {
+        return res.status(403).json({ message: "Not authorized to delete this project in this workspace" });
       }
 
       await project.deleteOne();

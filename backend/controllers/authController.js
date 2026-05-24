@@ -1,8 +1,9 @@
 import User from "../models/User.js";
+import Workspace from "../models/Workspace.js";
 import jwt from "jsonwebtoken";
 
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET || "fallback_secret", {
+const generateToken = (id, role, workspaceId) => {
+  return jwt.sign({ id, role, workspaceId }, process.env.JWT_SECRET || "fallback_secret", {
     expiresIn: "30d",
   });
 };
@@ -12,7 +13,7 @@ const generateToken = (id, role) => {
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -20,12 +21,22 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const user = await User.create({
+    // This endpoint is now exclusively for creating new Companies (Admins)
+    const user = new User({
       name,
       email,
       password,
-      ...(role && { role }),
+      role: "admin",
     });
+
+    // Create a new Workspace for this admin
+    const workspace = await Workspace.create({
+      name: `${name}'s Workspace`,
+      owner: user._id,
+    });
+
+    user.workspaceId = workspace._id;
+    await user.save();
 
     if (user) {
       res.status(201).json({
@@ -34,7 +45,8 @@ export const registerUser = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-        token: generateToken(user._id, user.role),
+        workspaceId: user.workspaceId,
+        token: generateToken(user._id, user.role, user.workspaceId),
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -62,7 +74,8 @@ export const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-        token: generateToken(user._id, user.role),
+        workspaceId: user.workspaceId,
+        token: generateToken(user._id, user.role, user.workspaceId),
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
@@ -93,7 +106,8 @@ export const updateUserProfile = async (req, res) => {
         email: updatedUser.email,
         role: updatedUser.role,
         avatar: updatedUser.avatar,
-        token: generateToken(updatedUser._id, updatedUser.role),
+        workspaceId: updatedUser.workspaceId,
+        token: generateToken(updatedUser._id, updatedUser.role, updatedUser.workspaceId),
       });
     } else {
       res.status(404).json({ message: "User not found" });
@@ -126,6 +140,56 @@ export const updateUserPassword = async (req, res) => {
     }
   } catch (error) {
     console.error("Update Password Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Register an employee via invite token
+// @route   POST /api/auth/register-employee
+// @access  Public
+export const registerEmployee = async (req, res) => {
+  try {
+    const { name, email, password, token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Invite token is required" });
+    }
+
+    const workspace = await Workspace.findOne({ inviteToken: token });
+
+    if (!workspace) {
+      return res.status(400).json({ message: "Invalid or expired invite token" });
+    }
+
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: "employee",
+      workspaceId: workspace._id,
+    });
+
+    if (user) {
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        workspaceId: user.workspaceId,
+        token: generateToken(user._id, user.role, user.workspaceId),
+      });
+    } else {
+      res.status(400).json({ message: "Invalid user data" });
+    }
+  } catch (error) {
+    console.error("Register Employee Error:", error);
     res.status(500).json({ message: error.message });
   }
 };

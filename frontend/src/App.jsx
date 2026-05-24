@@ -12,6 +12,7 @@ import "./App.css"
 // Lazy load pages for maximum performance and instant dynamic bundle loading
 const Login = lazy(() => import("./pages/Login").then(module => ({ default: module.Login })))
 const Register = lazy(() => import("./pages/Register").then(module => ({ default: module.Register })))
+const Join = lazy(() => import("./pages/Join").then(module => ({ default: module.Join })))
 const Dashboard = lazy(() => import("./pages/Dashboard").then(module => ({ default: module.Dashboard })))
 const Projects = lazy(() => import("./pages/Projects").then(module => ({ default: module.Projects })))
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })))
@@ -47,6 +48,14 @@ function App() {
               element={
                 <PublicRoute>
                   <Register />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/join" 
+              element={
+                <PublicRoute>
+                  <Join />
                 </PublicRoute>
               } 
             />

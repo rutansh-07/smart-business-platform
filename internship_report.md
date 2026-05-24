@@ -157,5 +157,10 @@ To share the MERN Stack website globally (e.g. showcasing it to an internship su
 *   **Backend Controller Upgrade:** Modified `authController.js` to accept an optional `role` field from the registration request body. The Mongoose enum validator (`"admin"` | `"employee"`) ensures only valid roles are persisted, with a safe default fallback to `"employee"`.
 *   **Navbar Role Badge:** Integrated a styled role badge directly into the desktop Navbar profile trigger button and the profile dropdown header. Admin users see a golden **"Owner"** pill with a Crown icon, while standard employees see a blue **"Employee"** pill with a Users icon — providing instant, at-a-glance role identification.
 
+### 🏢 Feature K: Multi-Tenant Architecture & Magic Invite Links (Industry Standard)
+*   **Database Isolation (Workspace Model):** Upgraded the Mongoose backend from a flat single-tenant database to a robust multi-tenant SaaS architecture. Created a new `Workspace` model and linked both `User` and `Project` schemas via `workspaceId`. This guarantees strict data isolation — Express controllers now query projects using `Project.find({ workspaceId: req.user.workspaceId })`, completely eliminating the risk of cross-company data breaches.
+*   **Magic Invite Token Generation:** Implemented the industry-standard approach for onboarding employees (similar to Slack/Notion). Admins have a new "Invite Team" tab in their Dashboard Settings that securely requests a cryptographically randomized 20-byte token from the `workspaceController.js` and generates a copyable URL.
+*   **Streamlined `/join` Routing:** Built a dedicated `Join.jsx` React component that intercepts employee invites via URL query parameters (`?token=xyz`). The page dynamically verifies the token against the backend to display "Join [Company Name]" and securely creates the employee account pre-bound to the correct Workspace, bypassing the main `/register` route entirely for flawless UX.
+
 ---
 **Report generated successfully. Ready to present for academic and corporate internship evaluations!**

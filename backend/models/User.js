@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "employee"],
       default: "employee",
     },
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
+      required: false, // Allows older seeded users to still function if needed
+    },
   },
   {
     timestamps: true,

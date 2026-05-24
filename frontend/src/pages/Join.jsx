@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,25 +9,45 @@ import axios from "axios"
 import { toast } from "sonner"
 import { ParticlesBackground } from "../components/ParticlesBackground"
 
-export function Register() {
+export function Join() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [workspaceName, setWorkspaceName] = useState(null)
+  
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get("token")
+
+  useEffect(() => {
+    if (token) {
+      axios.get(`/api/workspaces/verify-invite/${token}`)
+        .then((res) => setWorkspaceName(res.data.name))
+        .catch(() => toast.error("Invalid or expired invite link."));
+    }
+  }, [token])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    if (!token) {
+      toast.error("Invite token is missing from the URL.")
+      return
+    }
+
     setIsLoading(true)
     try {
-      const response = await axios.post("/api/auth/register", { name, email, password })
+      const response = await axios.post("/api/auth/register-employee", { 
+        name, email, password, token 
+      })
       localStorage.setItem("smartbiz_token", response.data.token)
       localStorage.setItem("smartbiz_user", JSON.stringify(response.data))
-      toast.success("Account created successfully! Welcome to SmartBiz.")
+      toast.success(`Successfully joined ${workspaceName || "the workspace"}!`)
       navigate("/dashboard")
     } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred during registration.")
+      toast.error(error.response?.data?.message || "Registration failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -37,7 +57,6 @@ export function Register() {
     <div className="relative w-full flex flex-col items-center justify-center min-h-screen overflow-hidden py-8 px-4">
       <ParticlesBackground />
 
-      {/* Brand Header */}
       <motion.div
         className="relative z-10 flex flex-col items-center mb-8"
         initial={{ opacity: 0, y: -20 }}
@@ -57,26 +76,29 @@ export function Register() {
 
       <motion.div
         className="relative z-10 w-full max-w-[420px]"
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", bounce: 0.3, duration: 0.6, delay: 0.1 }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
       >
         <Card className="w-full shadow-2xl border border-border/40 bg-card/80 backdrop-blur-xl">
           <CardHeader className="space-y-1 pb-5">
-            <CardTitle className="text-xl font-bold tracking-tight">Create your account</CardTitle>
+            <CardTitle className="text-xl font-bold tracking-tight">
+              {workspaceName ? `Join ${workspaceName}` : "Join Workspace"}
+            </CardTitle>
             <CardDescription>
-              Create a new workspace for your company — no credit card required
+              Create your employee account to join the team
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium" htmlFor="name">Full Name</label>
+                <label className="text-sm font-medium" htmlFor="name">Full name</label>
                 <Input
                   id="name"
-                  placeholder="Rahul Sharma"
+                  type="text"
                   required
+                  placeholder="Ravi Kumar"
                   className="bg-background/50 h-10"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -88,8 +110,8 @@ export function Register() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="rahul.sharma@example.in"
                   required
+                  placeholder="ravi.kumar@smartbiz.in"
                   className="bg-background/50 h-10"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -120,8 +142,6 @@ export function Register() {
                 </div>
               </div>
 
-
-
               <motion.div whileHover={!isLoading ? { scale: 1.02 } : {}} whileTap={!isLoading ? { scale: 0.98 } : {}}>
                 <Button
                   type="submit"
@@ -134,7 +154,7 @@ export function Register() {
                       Creating account...
                     </>
                   ) : (
-                    "Create Account"
+                    "Join Workspace"
                   )}
                 </Button>
               </motion.div>
@@ -145,24 +165,12 @@ export function Register() {
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link to="/login" className="text-primary hover:underline font-semibold">
-                Sign in instead
+                Sign in
               </Link>
             </p>
           </CardFooter>
         </Card>
-
-        {/* Trust badge */}
-        <motion.div
-          className="flex items-center justify-center gap-1.5 mt-5 text-xs text-muted-foreground"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Zap className="h-3 w-3 text-primary/60" />
-          <span>Secured with JWT authentication & bcrypt encryption</span>
-        </motion.div>
       </motion.div>
     </div>
   )
 }
-

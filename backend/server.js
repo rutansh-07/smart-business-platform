@@ -19,6 +19,7 @@ app.use(express.json());
 // Routes
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import workspaceRoutes from './routes/workspaceRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import path from 'path';
 
@@ -26,6 +27,7 @@ const __dirname = path.resolve();
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // Make uploads folder static

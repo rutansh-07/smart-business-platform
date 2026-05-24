@@ -28,6 +28,11 @@ const projectSchema = new mongoose.Schema(
       required: true,
       ref: "User", // Associates project with the creator
     },
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Workspace", // Isolates project to a specific company/workspace
+    },
   },
   {
     timestamps: true,
