@@ -25,12 +25,11 @@ const workspaceSchema = new mongoose.Schema(
 );
 
 // Auto-generate invite token before saving if it doesn't exist
-workspaceSchema.pre("save", function (next) {
+workspaceSchema.pre("save", async function () {
   if (!this.inviteToken) {
     // Generate a secure 20-character hex string
     this.inviteToken = crypto.randomBytes(20).toString("hex");
   }
-  next();
 });
 
 const Workspace = mongoose.model("Workspace", workspaceSchema);

@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema(
       ref: "Workspace",
       required: false, // Allows older seeded users to still function if needed
     },
+    status: {
+      type: String,
+      enum: ["pending", "active"],
+      default: "active",
+    },
   },
   {
     timestamps: true,

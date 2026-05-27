@@ -4,6 +4,7 @@ import { Activity, CreditCard, DollarSign, Users, TrendingUp, Briefcase } from "
 import { motion } from "framer-motion"
 import Tilt from "react-parallax-tilt"
 import api from "../utils/api"
+import { useSocket } from "../context/SocketContext"
 
 // Premium metric card skeleton matching the dashboard card layout
 function MetricCardSkeleton() {
@@ -98,6 +99,8 @@ export function Dashboard() {
   const [projectCount, setProjectCount] = useState(142)
   const [isLoading, setIsLoading] = useState(true)
 
+  const { socket } = useSocket()
+
   // Track if screen is a laptop/desktop (>= 1024px) to only enable 3D tilts there
   useEffect(() => {
     const handleResize = () => {
@@ -126,6 +129,24 @@ export function Dashboard() {
     }
     fetchStats()
   }, [])
+
+  // Socket.IO Real-Time Updates for Dashboard Metrics
+  useEffect(() => {
+    if (!socket) return
+
+    socket.on("project_created", () => {
+      setProjectCount((prev) => prev + 1)
+    })
+
+    socket.on("project_deleted", () => {
+      setProjectCount((prev) => Math.max(0, prev - 1))
+    })
+
+    return () => {
+      socket.off("project_created")
+      socket.off("project_deleted")
+    }
+  }, [socket])
 
   const containerVariants = {
     hidden: { opacity: 0 },

@@ -1,4 +1,5 @@
 import Project from "../models/Project.js";
+import { getIO } from "../socket.js";
 
 // @desc    Get all projects for the logged-in user
 // @route   GET /api/projects
@@ -38,6 +39,14 @@ export const createProject = async (req, res) => {
     });
 
     const createdProject = await project.save();
+    
+    // Emit real-time event to the workspace room
+    try {
+      getIO().to(`workspace_${req.user.workspaceId}`).emit("project_created", createdProject);
+    } catch (err) {
+      console.error("Socket emit failed:", err);
+    }
+
     res.status(201).json(createdProject);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -53,7 +62,10 @@ export const updateProject = async (req, res) => {
     const project = await Project.findById(req.params.id);
 
     if (project) {
-      // Verify workspace ownership
+      // Verify workspace ownership — guard against null/undefined workspaceId on legacy data
+      if (!req.user.workspaceId || !project.workspaceId) {
+        return res.status(403).json({ message: "Workspace data is missing. Please use a valid account." });
+      }
       if (project.workspaceId.toString() !== req.user.workspaceId.toString()) {
         return res.status(403).json({ message: "Not authorized to update this project in this workspace" });
       }
@@ -64,6 +76,14 @@ export const updateProject = async (req, res) => {
       project.progress = progress !== undefined ? progress : project.progress;
 
       const updatedProject = await project.save();
+
+      // Emit real-time event
+      try {
+        getIO().to(`workspace_${req.user.workspaceId}`).emit("project_updated", updatedProject);
+      } catch (err) {
+        console.error("Socket emit failed:", err);
+      }
+
       res.json(updatedProject);
     } else {
       res.status(404).json({ message: "Project not found" });
@@ -81,12 +101,23 @@ export const deleteProject = async (req, res) => {
     const project = await Project.findById(req.params.id);
 
     if (project) {
-      // Verify workspace ownership
+      // Verify workspace ownership — guard against null/undefined workspaceId on legacy data
+      if (!req.user.workspaceId || !project.workspaceId) {
+        return res.status(403).json({ message: "Workspace data is missing. Please use a valid account." });
+      }
       if (project.workspaceId.toString() !== req.user.workspaceId.toString()) {
         return res.status(403).json({ message: "Not authorized to delete this project in this workspace" });
       }
 
       await project.deleteOne();
+
+      // Emit real-time event
+      try {
+        getIO().to(`workspace_${req.user.workspaceId}`).emit("project_deleted", req.params.id);
+      } catch (err) {
+        console.error("Socket emit failed:", err);
+      }
+
       res.json({ message: "Project removed successfully" });
     } else {
       res.status(404).json({ message: "Project not found" });

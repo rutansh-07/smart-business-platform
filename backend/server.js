@@ -38,6 +38,12 @@ app.get('/', (req, res) => {
   res.send('Smart Business Management Platform API is running!');
 });
 
-app.listen(PORT, () => {
+import http from 'http';
+import { initSocket } from './socket.js';
+
+const server = http.createServer(app);
+initSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

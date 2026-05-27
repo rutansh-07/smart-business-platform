@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { User, Bell, Shield, Key, Loader2, Check, Copy, Users } from "lucide-react"
+import { User, Bell, Shield, Key, Loader2, Check, Copy, Users, RefreshCw, Trash2, Mail } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import api from "../utils/api"
 import { toast } from "sonner"
@@ -37,6 +37,13 @@ export function Settings() {
   const [inviteToken, setInviteToken] = useState("")
   const [copiedInvite, setCopiedInvite] = useState(false)
   const [isFetchingInvite, setIsFetchingInvite] = useState(false)
+  const [isRegeneratingInvite, setIsRegeneratingInvite] = useState(false)
+
+  // Team Members State
+  const [teamMembers, setTeamMembers] = useState([])
+  const [isFetchingMembers, setIsFetchingMembers] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState("")
+  const [isInviting, setIsInviting] = useState(false)
 
   // Load user data on mount
   useEffect(() => {
@@ -160,9 +167,25 @@ export function Settings() {
       const { data } = await api.get("/api/workspaces/invite")
       setInviteToken(data.token)
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to generate invite token.")
+      const msg = error.response?.data?.message || "Failed to fetch invite token."
+      toast.error(msg)
     } finally {
       setIsFetchingInvite(false)
+    }
+  }
+
+  // 7. Regenerate Invite Link (get a brand-new token)
+  const handleRegenerateInvite = async () => {
+    try {
+      setIsRegeneratingInvite(true)
+      const { data } = await api.post("/api/workspaces/regenerate-invite")
+      setInviteToken(data.token)
+      toast.success("New invite link generated! Share it with your team.")
+    } catch (error) {
+      const msg = error.response?.data?.message || "Failed to regenerate invite token."
+      toast.error(msg)
+    } finally {
+      setIsRegeneratingInvite(false)
     }
   }
 
@@ -174,10 +197,53 @@ export function Settings() {
     setTimeout(() => setCopiedInvite(false), 2000)
   }
 
-  // Fetch invite on load if they open the team tab
+  // 8. Fetch Team Members
+  const fetchTeamMembers = async () => {
+    try {
+      setIsFetchingMembers(true)
+      const { data } = await api.get("/api/workspaces/members")
+      setTeamMembers(data)
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch team members.")
+    } finally {
+      setIsFetchingMembers(false)
+    }
+  }
+
+  // 9. Invite Member by Email
+  const handleInviteEmail = async (e) => {
+    e.preventDefault()
+    if (!inviteEmail) return
+    try {
+      setIsInviting(true)
+      await api.post("/api/workspaces/invite-email", { email: inviteEmail })
+      toast.success("User invited successfully!")
+      setInviteEmail("")
+      fetchTeamMembers()
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to invite user.")
+    } finally {
+      setIsInviting(false)
+    }
+  }
+
+  // 10. Remove Team Member
+  const handleRemoveMember = async (id) => {
+    if (!window.confirm("Are you sure you want to remove this member?")) return
+    try {
+      await api.delete(`/api/workspaces/members/${id}`)
+      toast.success("Member removed.")
+      fetchTeamMembers()
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to remove member.")
+    }
+  }
+
+  // Fetch invite and members on load when team tab is opened
   useEffect(() => {
-    if (activeTab === "team" && !inviteToken) {
-      handleFetchInvite()
+    if (activeTab === "team") {
+      if (!inviteToken) handleFetchInvite()
+      fetchTeamMembers()
     }
   }, [activeTab])
 
@@ -484,32 +550,175 @@ export function Settings() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <label className="text-sm font-bold text-blue-400">Workspace Magic Link</label>
+
+                      {/* Link Input + Copy Button */}
                       <div className="flex flex-col sm:flex-row gap-3">
                         <div className="relative flex-1">
                           <Input
                             readOnly
-                            value={isFetchingInvite ? "Generating secure token..." : (inviteToken ? `${window.location.origin}/join?token=${inviteToken}` : "")}
+                            value={
+                              isFetchingInvite
+                                ? "Fetching your invite link..."
+                                : inviteToken
+                                ? `${window.location.origin}/join?token=${inviteToken}`
+                                : "Could not load invite link — try regenerating below."
+                            }
                             className="bg-black/40 font-mono text-xs pr-10 border-blue-500/30 text-muted-foreground"
                           />
+                          {isFetchingInvite && (
+                            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-blue-400" />
+                          )}
                         </div>
-                        <Button 
-                          onClick={handleCopyInvite} 
+                        <Button
+                          onClick={handleCopyInvite}
                           disabled={!inviteToken || isFetchingInvite}
-                          className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px]"
+                          className="bg-blue-600 hover:bg-blue-700 text-white min-w-[130px]"
                         >
                           {copiedInvite ? (
-                            <><Check className="h-4 w-4 mr-2" /> Copied</>
+                            <><Check className="h-4 w-4 mr-2" /> Copied!</>
                           ) : (
                             <><Copy className="h-4 w-4 mr-2" /> Copy Link</>
                           )}
                         </Button>
                       </div>
-                      <p className="text-xs text-muted-foreground pt-1">
-                        Anyone with this link can create an employee account inside your workspace.
+
+                      <p className="text-xs text-muted-foreground">
+                        Anyone with this link can create an employee account inside your workspace. Keep it private.
                       </p>
+
+                      {/* Regenerate Button */}
+                      <div className="flex items-center gap-3 pt-2 border-t border-border/30">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">Rotate Invite Link</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Generate a new token. The old link will immediately stop working.
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={handleRegenerateInvite}
+                          disabled={isRegeneratingInvite || isFetchingInvite}
+                          className="border-blue-500/40 hover:bg-blue-500/10 text-blue-400 shrink-0"
+                        >
+                          {isRegeneratingInvite ? (
+                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Regenerating...</>
+                          ) : (
+                            <><RefreshCw className="h-4 w-4 mr-2" /> Regenerate</>
+                          )}
+                        </Button>
+                      </div>
+
+                      {/* Invite By Email Form */}
+                      <div className="pt-4 mt-2 border-t border-border/30">
+                        <label className="text-sm font-bold text-blue-400 mb-2 block">Invite via Email</label>
+                        <form onSubmit={handleInviteEmail} className="flex flex-col sm:flex-row gap-3">
+                          <div className="relative flex-1">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              type="email"
+                              placeholder="employee@company.com"
+                              value={inviteEmail}
+                              onChange={(e) => setInviteEmail(e.target.value)}
+                              className="pl-9 bg-black/40 border-blue-500/30"
+                              required
+                            />
+                          </div>
+                          <Button 
+                            type="submit" 
+                            disabled={isInviting || !inviteEmail}
+                            className="bg-blue-600 hover:bg-blue-700 text-white min-w-[130px]"
+                          >
+                            {isInviting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Invite"}
+                          </Button>
+                        </form>
+                      </div>
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* Team Members Table */}
+                <Card className="glass-panel border-none shadow-lg bg-card/60 backdrop-blur mt-6">
+                  <CardHeader>
+                    <CardTitle>Team Members</CardTitle>
+                    <CardDescription>
+                      Manage employees in your workspace. Pending users have been invited but haven't joined yet.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {isFetchingMembers ? (
+                      <div className="flex justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+                      </div>
+                    ) : teamMembers.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No team members found.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                          <thead className="text-xs text-muted-foreground uppercase bg-black/20">
+                            <tr>
+                              <th className="px-4 py-3 rounded-tl-lg">User</th>
+                              <th className="px-4 py-3">Role</th>
+                              <th className="px-4 py-3">Status</th>
+                              <th className="px-4 py-3 text-right rounded-tr-lg">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {teamMembers.map((member) => (
+                              <tr key={member._id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                <td className="px-4 py-3">
+                                  <div className="flex items-center gap-3">
+                                    <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 overflow-hidden shrink-0">
+                                      {member.avatar ? (
+                                        <img src={member.avatar} alt={member.name} className="h-full w-full object-cover" />
+                                      ) : (
+                                        <User className="h-4 w-4" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <div className="font-medium text-slate-200">{member.name}</div>
+                                      <div className="text-xs text-muted-foreground">{member.email}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className="capitalize">{member.role}</span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  {member.status === "pending" ? (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
+                                      Pending
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                      Active
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                  {member._id !== user?._id && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                      onClick={() => handleRemoveMember(member._id)}
+                                      title="Remove Member"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>

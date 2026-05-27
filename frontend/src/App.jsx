@@ -9,6 +9,8 @@ import { Toaster } from "@/components/ui/sonner"
 import { Loader2 } from "lucide-react"
 import "./App.css"
 
+import { SocketProvider } from "./context/SocketContext"
+
 // Lazy load pages for maximum performance and instant dynamic bundle loading
 const Login = lazy(() => import("./pages/Login").then(module => ({ default: module.Login })))
 const Register = lazy(() => import("./pages/Register").then(module => ({ default: module.Register })))
@@ -31,63 +33,62 @@ function PageLoader() {
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="smartbiz-theme">
-      <Router>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public Authentication Routes (Prevent logged-in users from seeing them) */}
-            <Route 
-              path="/login" 
-              element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/register" 
-              element={
-                <PublicRoute>
-                  <Register />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/join" 
-              element={
-                <PublicRoute>
-                  <Join />
-                </PublicRoute>
-              } 
-            />
-
-            {/* Protected Dashboard Routes (Prevent unauthorized users from seeing them) */}
-            <Route 
-              path="/" 
-              element={
-                <ProtectedRoute>
-                  <MainLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="projects" element={<Projects />} />
-              <Route path="analytics" element={<Analytics />} />
+      <SocketProvider>
+        <Router>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public Authentication Routes (Prevent logged-in users from seeing them) */}
               <Route 
-                path="settings" 
+                path="/login" 
                 element={
-                  <AdminRoute>
-                    <Settings />
-                  </AdminRoute>
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
                 } 
               />
-            </Route>
+              <Route 
+                path="/register" 
+                element={
+                  <PublicRoute>
+                    <Register />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/join" 
+                element={<Join />}
+              />
 
-            {/* Catch-all Redirect */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </Router>
+
+              {/* Protected Dashboard Routes (Prevent unauthorized users from seeing them) */}
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <MainLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="projects" element={<Projects />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route 
+                  path="settings" 
+                  element={
+                    <AdminRoute>
+                      <Settings />
+                    </AdminRoute>
+                  } 
+                />
+              </Route>
+
+              {/* Catch-all Redirect */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </Router>
+      </SocketProvider>
       <Toaster />
     </ThemeProvider>
   )

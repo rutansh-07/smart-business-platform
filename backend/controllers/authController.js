@@ -161,19 +161,28 @@ export const registerEmployee = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired invite token" });
     }
 
-    const userExists = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+    if (user) {
+      if (user.status === "pending") {
+        user.name = name;
+        user.password = password;
+        user.status = "active";
+        user.workspaceId = workspace._id;
+        await user.save();
+      } else {
+        return res.status(400).json({ message: "User already exists" });
+      }
+    } else {
+      user = await User.create({
+        name,
+        email,
+        password,
+        role: "employee",
+        status: "active",
+        workspaceId: workspace._id,
+      });
     }
-
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role: "employee",
-      workspaceId: workspace._id,
-    });
 
     if (user) {
       res.status(201).json({
