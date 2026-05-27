@@ -18,6 +18,27 @@ export const getProjects = async (req, res) => {
   }
 };
 
+// @desc    Get a single project by ID
+// @route   GET /api/projects/:id
+// @access  Private
+export const getProjectById = async (req, res) => {
+  try {
+    if (!req.user.workspaceId) {
+      return res.status(403).json({ message: "No workspace found" });
+    }
+    const project = await Project.findOne({
+      _id: req.params.id,
+      workspaceId: req.user.workspaceId,
+    });
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Create a new project
 // @route   POST /api/projects
 // @access  Private

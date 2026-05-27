@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Briefcase, Clock, CheckCircle2, CircleDashed, Plus, Trash2, ChevronDown, ChevronUp, Loader2 } from "lucide-react"
+import { Briefcase, Clock, CheckCircle2, CircleDashed, Plus, Trash2, ChevronUp, Loader2, Kanban } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import api from "../utils/api"
 import { toast } from "sonner"
@@ -35,6 +36,7 @@ export function Projects() {
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [user, setUser] = useState(null)
+  const navigate = useNavigate()
   
   const { socket } = useSocket()
 
@@ -378,9 +380,20 @@ export function Projects() {
                           transition={{ duration: 0.8, ease: "easeOut" }}
                         ></motion.div>
                       </div>
-                      <p className="text-[10px] text-muted-foreground mt-2 text-right">
-                        Created {new Date(project.createdAt).toLocaleDateString()}
-                      </p>
+                      <div className="flex items-center justify-between mt-3">
+                        <p className="text-[10px] text-muted-foreground">
+                          Created {new Date(project.createdAt).toLocaleDateString()}
+                        </p>
+                        <Button
+                          onClick={() => navigate(`/projects/${project._id}/tasks`)}
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2.5 text-xs font-semibold text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 gap-1.5 border border-violet-500/20 hover:border-violet-500/40 transition-all"
+                        >
+                          <Kanban className="h-3.5 w-3.5" />
+                          Task Board
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>

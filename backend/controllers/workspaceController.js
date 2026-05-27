@@ -99,6 +99,27 @@ export const getWorkspaceMembers = async (req, res) => {
   }
 };
 
+// @desc    Get all active members of the user's workspace (accessible to all roles)
+// @route   GET /api/workspaces/team
+// @access  Private
+export const getTeamMembers = async (req, res) => {
+  try {
+    if (!req.user.workspaceId) {
+      return res.status(400).json({ message: "No workspace associated with this user." });
+    }
+    const members = await User.find({
+      workspaceId: req.user.workspaceId,
+      status: "active",
+    })
+      .select("name email avatar role")
+      .sort({ name: 1 });
+    res.json(members);
+  } catch (error) {
+    console.error("Get Team Members Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Remove a member from the workspace
 // @route   DELETE /api/workspaces/members/:id
 // @access  Private (Admin only)

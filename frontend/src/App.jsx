@@ -19,6 +19,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard").then(module => ({ defau
 const Projects = lazy(() => import("./pages/Projects").then(module => ({ default: module.Projects })))
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })))
 const Settings = lazy(() => import("./pages/Settings").then(module => ({ default: module.Settings })))
+const ProjectTasks = lazy(() => import("./pages/ProjectTasks").then(module => ({ default: module.ProjectTasks })))
 
 // Premium dynamic loading spinner fallback
 function PageLoader() {
@@ -73,6 +74,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="projects" element={<Projects />} />
                 <Route path="analytics" element={<Analytics />} />
+                <Route path="projects/:projectId/tasks" element={<ProjectTasks />} />
                 <Route 
                   path="settings" 
                   element={

@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getProjects,
+  getProjectById,
   createProject,
   updateProject,
   deleteProject,
@@ -17,6 +18,7 @@ router.route("/")
   .post(createProject);
 
 router.route("/:id")
+  .get(getProjectById)
   .put(updateProject)
   .delete(isAdmin, deleteProject);
 
