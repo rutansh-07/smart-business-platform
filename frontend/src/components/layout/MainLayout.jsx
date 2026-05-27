@@ -1,7 +1,25 @@
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { Navbar } from "./Navbar";
+import { useSocket } from "../../context/SocketContext";
 
 export function MainLayout() {
+  const { joinWorkspace } = useSocket();
+
+  useEffect(() => {
+    const saved = localStorage.getItem("smartbiz_user");
+    if (saved) {
+      try {
+        const user = JSON.parse(saved);
+        if (user.workspaceId && joinWorkspace) {
+          joinWorkspace(user.workspaceId);
+        }
+      } catch (err) {
+        console.error("Error joining workspace room on MainLayout mount", err);
+      }
+    }
+  }, [joinWorkspace]);
+
   return (
     <div className="min-h-screen bg-background font-sans antialiased flex flex-col justify-between relative">
       {/* Main content sits above the ::before/::after gradient orbs */}

@@ -209,7 +209,9 @@ function AssigneeChip({ task, currentUser, members, canEdit, onReassign }) {
                           {getInitials(m.name)}
                         </div>
                         <span className="truncate">{m.name.split(" ")[0]}</span>
-                        <span className="text-[9px] text-muted-foreground/60 ml-1">{m.role}</span>
+                        <span className="text-[9px] text-muted-foreground/60 ml-1 uppercase tracking-wider scale-95">
+                          {m.status === "pending" ? "invited" : m.role}
+                        </span>
                         {isSelected && <Check className="h-3 w-3 ml-auto text-violet-400 flex-shrink-0" />}
                       </button>
                     );
@@ -451,12 +453,12 @@ export function TaskCard({ task, currentUser, members = [] }) {
                 )}
               </div>
 
-              {/* Assignee chip — creator/admin can click to reassign */}
+              {/* Assignee chip — any workspace member can click to assign */}
               <AssigneeChip
                 task={task}
                 currentUser={currentUser}
                 members={members}
-                canEdit={canEdit}
+                canEdit={true}
                 onReassign={handleReassign}
               />
             </div>

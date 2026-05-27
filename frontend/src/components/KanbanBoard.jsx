@@ -279,23 +279,9 @@ function QuickAddForm({ columnId, projectId, onClose, members, currentUser }) {
   );
 }
 
-// ─── Workload Bar ─────────────────────────────────────────────────
-function WorkloadBar({ tasks, members }) {
+// ─── Team Members Bar ─────────────────────────────────────────────
+function TeamMembersBar({ members }) {
   if (!members.length) return null;
-
-  const workload = members.map((m) => ({
-    ...m,
-    count: tasks.filter(
-      (t) => t.assignee?._id === m._id || t.assignee === m._id
-    ).length,
-    done: tasks.filter(
-      (t) =>
-        (t.assignee?._id === m._id || t.assignee === m._id) &&
-        t.status === "done"
-    ).length,
-  })).sort((a, b) => b.count - a.count);
-
-  const max = Math.max(...workload.map((w) => w.count), 1);
 
   return (
     <motion.div
@@ -305,39 +291,32 @@ function WorkloadBar({ tasks, members }) {
       className="mb-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur"
     >
       <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
-        <BarChart2 className="h-3.5 w-3.5" /> Team Workload
+        <Users className="h-3.5 w-3.5" /> Workspace Team
       </p>
-      <div className="space-y-2.5">
-        {workload.map((w) => (
-          <div key={w._id} className="flex items-center gap-3">
-            <div className="h-6 w-6 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
-              {getInitials(w.name)}
+      <div className="flex flex-wrap gap-3">
+        {members.map((m) => (
+          <div
+            key={m._id}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors"
+          >
+            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 shadow">
+              {getInitials(m.name)}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-medium text-white/80 truncate">
-                  {w.name.split(" ")[0]}
-                </span>
-                <span className="text-[10px] text-muted-foreground ml-2 flex-shrink-0">
-                  {w.done}/{w.count} done
-                </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-semibold text-white/90 truncate leading-snug">
+                  {m.name}
+                </p>
+                {m.status === "pending" && (
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/10 uppercase tracking-widest scale-90 flex-shrink-0">
+                    Invited
+                  </span>
+                )}
               </div>
-              <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(w.count / max) * 100}%` }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                />
-              </div>
+              <p className="text-[9px] text-muted-foreground leading-none mt-0.5 uppercase tracking-wider">
+                {m.role === "admin" ? "Owner" : "Employee"}
+              </p>
             </div>
-            <span
-              className={`text-[11px] font-bold w-4 text-center flex-shrink-0 ${
-                w.count > 3 ? "text-rose-400" : "text-muted-foreground"
-              }`}
-            >
-              {w.count}
-            </span>
           </div>
         ))}
       </div>
@@ -502,17 +481,23 @@ export function KanbanBoard({ projectId, projectName, members = [] }) {
     handleSocketTasksReordered,
   } = useTask();
 
-  const { socket } = useSocket();
+  const { socket, joinWorkspace } = useSocket();
   const [activeTask, setActiveTask] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [assigneeFilter, setAssigneeFilter] = useState(null);
-  const [showWorkload, setShowWorkload] = useState(false);
+  const [showWorkload, setShowWorkload] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem("smartbiz_user");
-    if (saved) setCurrentUser(JSON.parse(saved));
+    if (saved) {
+      const user = JSON.parse(saved);
+      setCurrentUser(user);
+      if (user.workspaceId && joinWorkspace) {
+        joinWorkspace(user.workspaceId);
+      }
+    }
     loadTasks(projectId);
-  }, [projectId, loadTasks]);
+  }, [projectId, loadTasks, joinWorkspace]);
 
   // Socket listeners
   useEffect(() => {
@@ -661,15 +646,15 @@ export function KanbanBoard({ projectId, projectName, members = [] }) {
                 : "bg-white/5 border-white/10 text-muted-foreground hover:text-white hover:border-white/20"
               }`}
           >
-            <BarChart2 className="h-3.5 w-3.5" />
-            {showWorkload ? "Hide Workload" : "Workload"}
+            <Users className="h-3.5 w-3.5" />
+            {showWorkload ? "Hide Team" : "Show Team"}
           </button>
         )}
       </div>
 
-      {/* ── Workload Bar ───────────────────────────────────── */}
+      {/* ── Team Members Bar ───────────────────────────────── */}
       <AnimatePresence>
-        {showWorkload && <WorkloadBar tasks={tasks} members={members} />}
+        {showWorkload && <TeamMembersBar members={members} />}
       </AnimatePresence>
 
       {/* ── Kanban columns ────────────────────────────────── */}

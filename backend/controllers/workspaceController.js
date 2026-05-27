@@ -99,7 +99,7 @@ export const getWorkspaceMembers = async (req, res) => {
   }
 };
 
-// @desc    Get all active members of the user's workspace (accessible to all roles)
+// @desc    Get all members of the user's workspace (accessible to all roles)
 // @route   GET /api/workspaces/team
 // @access  Private
 export const getTeamMembers = async (req, res) => {
@@ -109,9 +109,8 @@ export const getTeamMembers = async (req, res) => {
     }
     const members = await User.find({
       workspaceId: req.user.workspaceId,
-      status: "active",
     })
-      .select("name email avatar role")
+      .select("name email avatar role status")
       .sort({ name: 1 });
     res.json(members);
   } catch (error) {

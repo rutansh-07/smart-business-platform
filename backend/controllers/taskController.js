@@ -107,7 +107,6 @@ export const updateTask = async (req, res) => {
       title !== undefined ||
       description !== undefined ||
       priority !== undefined ||
-      assignee !== undefined ||
       dueDate !== undefined;
 
     // Only creator or admin can change sensitive content fields
@@ -115,16 +114,16 @@ export const updateTask = async (req, res) => {
       return res.status(403).json({ message: "Only the task creator can edit task details" });
     }
 
-    // Any workspace member can change status and order (completion tick / drag-drop)
+    // Any workspace member can change status, order, and assignee
     if (status !== undefined) task.status = status;
     if (order !== undefined) task.order = order;
+    if (assignee !== undefined) task.assignee = assignee;
 
     // Sensitive fields — creator/admin only
     if (hasSensitiveChanges) {
       if (title !== undefined) task.title = title;
       if (description !== undefined) task.description = description;
       if (priority !== undefined) task.priority = priority;
-      if (assignee !== undefined) task.assignee = assignee;
       if (dueDate !== undefined) task.dueDate = dueDate;
     }
 
