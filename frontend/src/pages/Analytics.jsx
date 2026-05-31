@@ -161,6 +161,9 @@ export function Analytics() {
           <ChartSkeleton />
           <TrafficOverviewSkeleton />
         </div>
+
+        {/* Clients Section Skeleton */}
+        <div className="mt-2 h-64 w-full bg-card/60 rounded-xl animate-pulse shadow-lg" />
       </div>
     )
   }
@@ -428,6 +431,50 @@ export function Analytics() {
         </motion.div>
 
       </div>
+
+      {/* Client Overview Section */}
+      <motion.div variants={itemVariants} className="mt-2">
+        <Card className="glass-panel border-none shadow-xl bg-card/60 backdrop-blur w-full">
+          <CardHeader>
+            <CardTitle className="text-xl">Client Overview</CardTitle>
+            <CardDescription>Directory of newly acquired vs. returning enterprise accounts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[
+                { name: "Acme Corp", email: "contact@acme.com", status: "Returning", spend: "₹12,45,000", joined: "Jan 2024" },
+                { name: "Stark Industries", email: "tony@stark.com", status: "New", spend: "₹2,50,000", joined: "May 2026" },
+                { name: "Wayne Ent.", email: "bruce@wayne.com", status: "Returning", spend: "₹8,90,000", joined: "Nov 2023" },
+                { name: "Oscorp", email: "norman@oscorp.com", status: "New", spend: "₹1,20,000", joined: "May 2026" },
+                { name: "LexCorp", email: "lex@lexcorp.com", status: "Returning", spend: "₹15,00,000", joined: "Mar 2022" },
+                { name: "Pied Piper", email: "richard@piedpiper.com", status: "New", spend: "₹75,000", joined: "May 2026" },
+              ].map((client, i) => (
+                <div key={i} className="flex flex-col p-4 rounded-xl border border-border/40 bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-sm ${client.status === 'New' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                        {client.name.substring(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{client.name}</p>
+                        <p className="text-xs text-muted-foreground">{client.email}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-full ${client.status === 'New' ? 'bg-emerald-500/15 text-emerald-500' : 'bg-blue-500/15 text-blue-500'}`}>
+                      {client.status}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs mt-auto pt-3 border-t border-border/20">
+                    <span className="text-muted-foreground">Joined: <span className="font-medium text-foreground">{client.joined}</span></span>
+                    <span className="text-muted-foreground">Spend: <span className="font-bold text-foreground privacy-mask">{client.spend}</span></span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
     </motion.div>
   )
 }
