@@ -158,7 +158,7 @@ function AssigneeChip({ task, currentUser, members, canEdit, onReassign }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 4, scale: 0.95 }}
               transition={{ duration: 0.12 }}
-              className="absolute bottom-full right-0 mb-2 w-48 rounded-xl border border-white/10 bg-[#13172b] shadow-2xl z-50 overflow-hidden"
+              className="absolute bottom-full right-0 mb-2 w-48 rounded-xl border border-border bg-popover shadow-2xl z-50 overflow-hidden text-popover-foreground"
             >
               <div className="p-2">
                 <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest px-2 py-1">
@@ -168,9 +168,9 @@ function AssigneeChip({ task, currentUser, members, canEdit, onReassign }) {
                 <button
                   onClick={() => { onReassign(null); setOpen(false); }}
                   className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors
-                    ${!assignee ? "text-white bg-white/10" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+                    ${!assignee ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"}`}
                 >
-                  <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center border border-white/10 flex-shrink-0">
+                  <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center border border-border flex-shrink-0">
                     <User2 className="h-3 w-3" />
                   </div>
                   Unassigned
@@ -182,7 +182,7 @@ function AssigneeChip({ task, currentUser, members, canEdit, onReassign }) {
                   <button
                     onClick={() => { onReassign(currentUser._id); setOpen(false); }}
                     className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors
-                      ${isAssignedToMe ? "text-white bg-violet-600/20" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+                      ${isAssignedToMe ? "text-foreground bg-violet-600/20" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"}`}
                   >
                     <div className="h-6 w-6 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
                       {getInitials(currentUser.name || "")}
@@ -203,7 +203,7 @@ function AssigneeChip({ task, currentUser, members, canEdit, onReassign }) {
                         key={m._id}
                         onClick={() => { onReassign(m._id); setOpen(false); }}
                         className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors
-                          ${isSelected ? "text-white bg-white/10" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+                          ${isSelected ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"}`}
                       >
                         <div className="h-6 w-6 rounded-full bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0">
                           {getInitials(m.name)}
@@ -324,10 +324,10 @@ export function TaskCard({ task, currentUser, members = [] }) {
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={`group relative rounded-xl border backdrop-blur-sm p-4 shadow-lg hover:shadow-xl transition-all duration-200
         ${isDragging
-          ? "shadow-2xl ring-2 ring-violet-500/50 scale-[1.02] bg-[#1a1f2e]/80"
+          ? "shadow-2xl ring-2 ring-violet-500/50 scale-[1.02] bg-card border-violet-500/50"
           : isDone
-          ? "bg-emerald-950/30 border-emerald-500/20 hover:border-emerald-500/30"
-          : "bg-[#1a1f2e]/80 border-white/5 hover:border-white/10"
+          ? "bg-emerald-500/10 border-emerald-500/20 hover:border-emerald-500/30"
+          : "bg-card border-border hover:border-muted-foreground/20"
         }
       `}
     >
@@ -354,20 +354,20 @@ export function TaskCard({ task, currentUser, members = [] }) {
               autoFocus
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+              className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/50"
               placeholder="Task title..."
             />
             <textarea
               value={editDesc}
               onChange={(e) => setEditDesc(e.target.value)}
               rows={2}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+              className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-1.5 text-xs text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50"
               placeholder="Description (optional)..."
             />
             <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => { setIsEditing(false); setEditTitle(task.title); setEditDesc(task.description || ""); }}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground transition-colors"
+                className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground transition-colors"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -415,7 +415,7 @@ export function TaskCard({ task, currentUser, members = [] }) {
                 />
               </div>
               <p className={`text-sm font-semibold leading-snug transition-all duration-300 line-clamp-2
-                ${isDone ? "line-through text-muted-foreground/50" : "text-white"}`}
+                ${isDone ? "line-through text-muted-foreground/50" : "text-foreground"}`}
               >
                 {task.title}
               </p>

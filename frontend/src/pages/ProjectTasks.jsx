@@ -43,7 +43,7 @@ function ProjectTasksInner({ project, members }) {
             icon: Kanban,
             color: "from-slate-500 to-slate-600",
             bg: "bg-slate-500/10",
-            text: "text-slate-300",
+            text: "text-slate-800 dark:text-slate-300",
           },
           {
             label: "To Do",
@@ -51,7 +51,7 @@ function ProjectTasksInner({ project, members }) {
             icon: ListTodo,
             color: "from-slate-400 to-slate-500",
             bg: "bg-slate-500/10",
-            text: "text-slate-300",
+            text: "text-slate-800 dark:text-slate-300",
           },
           {
             label: "In Progress",
@@ -59,7 +59,7 @@ function ProjectTasksInner({ project, members }) {
             icon: Timer,
             color: "from-violet-500 to-indigo-600",
             bg: "bg-violet-500/10",
-            text: "text-violet-300",
+            text: "text-violet-700 dark:text-violet-300",
           },
           {
             label: "Completed",
@@ -67,13 +67,13 @@ function ProjectTasksInner({ project, members }) {
             icon: CheckCircle2,
             color: "from-emerald-500 to-teal-500",
             bg: "bg-emerald-500/10",
-            text: "text-emerald-300",
+            text: "text-emerald-700 dark:text-emerald-300",
           },
         ].map((stat) => (
           <motion.div
             key={stat.label}
             whileHover={{ y: -2 }}
-            className={`flex items-center gap-3 p-4 rounded-xl border border-white/5 ${stat.bg} backdrop-blur`}
+            className={`flex items-center gap-3 p-4 rounded-xl border border-border ${stat.bg} backdrop-blur`}
           >
             <div className={`p-2.5 rounded-lg bg-gradient-to-br ${stat.color} shadow-lg flex-shrink-0`}>
               <stat.icon className="h-4 w-4 text-white" />
@@ -98,9 +98,9 @@ function ProjectTasksInner({ project, members }) {
             <span className="text-xs text-muted-foreground font-medium">
               Overall Completion
             </span>
-            <span className="text-xs font-bold text-emerald-400">{completion}%</span>
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{completion}%</span>
           </div>
-          <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-violet-500 to-emerald-500"
               initial={{ width: 0 }}

@@ -70,7 +70,19 @@ export const createTask = async (req, res) => {
 
     // Emit real-time event to workspace room
     try {
-      getIO().to(`workspace_${workspaceId}`).emit("task_created", populatedTask);
+      const io = getIO();
+      io.to(`workspace_${workspaceId}`).emit("task_created", populatedTask);
+
+      // Notify the assignee if one was set at creation time
+      if (assignee) {
+        io.to(`workspace_${workspaceId}`).emit("task_assigned", {
+          taskId: populatedTask._id,
+          taskTitle: populatedTask.title,
+          assigneeId: assignee,
+          assignerName: req.user.name || "Someone",
+          projectId,
+        });
+      }
     } catch (e) {
       console.warn("Socket not available for task_created emit");
     }
@@ -97,6 +109,9 @@ export const updateTask = async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
+
+    // Capture the old assignee before mutation so we can detect changes
+    const previousAssignee = task.assignee ? task.assignee.toString() : null;
 
     const isCreator = task.creator.toString() === req.user._id.toString();
     const isAdmin = req.user.role === "admin";
@@ -135,7 +150,20 @@ export const updateTask = async (req, res) => {
 
     // Emit real-time event
     try {
-      getIO().to(`workspace_${workspaceId}`).emit("task_updated", updatedTask);
+      const io = getIO();
+      io.to(`workspace_${workspaceId}`).emit("task_updated", updatedTask);
+
+      // Notify the NEW assignee if the assignee was changed
+      const newAssignee = assignee !== undefined ? (assignee || null) : null;
+      if (newAssignee && newAssignee !== previousAssignee) {
+        io.to(`workspace_${workspaceId}`).emit("task_assigned", {
+          taskId: updatedTask._id,
+          taskTitle: updatedTask.title,
+          assigneeId: newAssignee,
+          assignerName: req.user.name || "Someone",
+          projectId: updatedTask.project,
+        });
+      }
     } catch (e) {
       console.warn("Socket not available for task_updated emit");
     }

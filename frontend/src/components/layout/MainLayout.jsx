@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import { toast } from "sonner";
 import { Navbar } from "./Navbar";
 import { useSocket } from "../../context/SocketContext";
 
 export function MainLayout() {
-  const { joinWorkspace } = useSocket();
+  const { socket, joinWorkspace } = useSocket();
 
   useEffect(() => {
     const saved = localStorage.getItem("smartbiz_user");
@@ -19,6 +20,41 @@ export function MainLayout() {
       }
     }
   }, [joinWorkspace]);
+
+  // ── Global assignment notification listener ──────────────────
+  useEffect(() => {
+    if (!socket) return;
+
+    const onAssigned = (payload) => {
+      const saved = localStorage.getItem("smartbiz_user");
+      if (!saved) return;
+      try {
+        const user = JSON.parse(saved);
+        if (String(payload.assigneeId) === String(user._id)) {
+          toast(
+            `📋 New assignment from ${payload.assignerName}`,
+            {
+              description: `You have been assigned: "${payload.taskTitle}"`,
+              duration: 8000,
+              style: {
+                background: "linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%)",
+                color: "#fff",
+                border: "1px solid rgba(139,92,246,0.5)",
+                fontWeight: 600,
+              },
+            }
+          );
+        }
+      } catch {
+        // ignore parse errors
+      }
+    };
+
+    socket.on("task_assigned", onAssigned);
+    return () => {
+      socket.off("task_assigned", onAssigned);
+    };
+  }, [socket]);
 
   return (
     <div className="min-h-screen bg-background font-sans antialiased flex flex-col justify-between relative">

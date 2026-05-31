@@ -388,7 +388,7 @@ export function Projects() {
                           onClick={() => navigate(`/projects/${project._id}/tasks`)}
                           size="sm"
                           variant="ghost"
-                          className="h-7 px-2.5 text-xs font-semibold text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 gap-1.5 border border-violet-500/20 hover:border-violet-500/40 transition-all"
+                          className="h-7 px-2.5 text-xs font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 hover:bg-violet-500/10 gap-1.5 border border-violet-500/20 hover:border-violet-500/40 transition-all"
                         >
                           <Kanban className="h-3.5 w-3.5" />
                           Task Board

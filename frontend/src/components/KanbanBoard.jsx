@@ -61,8 +61,8 @@ const COLUMNS = [
     label: "To Do",
     icon: ListTodo,
     accent: "from-slate-500 to-slate-600",
-    badge: "bg-slate-500/20 text-slate-300",
-    border: "border-slate-500/20",
+    badge: "bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/20",
+    border: "border-slate-500/25",
     headerBg: "bg-slate-500/10",
   },
   {
@@ -70,8 +70,8 @@ const COLUMNS = [
     label: "In Progress",
     icon: Timer,
     accent: "from-violet-500 to-indigo-600",
-    badge: "bg-violet-500/20 text-violet-300",
-    border: "border-violet-500/20",
+    badge: "bg-violet-500/15 text-violet-700 dark:text-violet-300 border border-violet-500/20",
+    border: "border-violet-500/25",
     headerBg: "bg-violet-500/10",
   },
   {
@@ -79,8 +79,8 @@ const COLUMNS = [
     label: "Done",
     icon: CheckCircle2,
     accent: "from-emerald-500 to-teal-600",
-    badge: "bg-emerald-500/20 text-emerald-300",
-    border: "border-emerald-500/20",
+    badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20",
+    border: "border-emerald-500/25",
     headerBg: "bg-emerald-500/10",
   },
 ];
@@ -103,7 +103,7 @@ function AssigneePicker({ members, value, onChange, currentUser }) {
             ${
               value === currentUser._id
                 ? "bg-violet-600/30 border-violet-500/50 text-violet-300"
-                : "bg-white/5 border-white/10 text-muted-foreground hover:text-white hover:border-white/20"
+                : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
             }`}
         >
           <User className="h-3.5 w-3.5" />
@@ -122,8 +122,8 @@ function AssigneePicker({ members, value, onChange, currentUser }) {
               className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-semibold transition-all
                 ${
                   value === m._id
-                    ? "bg-violet-600/30 border-violet-500/50 text-white"
-                    : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20 hover:text-white"
+                    ? "bg-violet-600/30 border-violet-500/50 text-foreground font-bold"
+                    : "bg-secondary/50 border-border text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground"
                 }`}
             >
               <span
@@ -192,7 +192,7 @@ function QuickAddForm({ columnId, projectId, onClose, members, currentUser }) {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="rounded-xl border border-white/10 bg-[#13172b]/95 backdrop-blur p-4 shadow-2xl"
+      className="rounded-xl border border-border bg-card p-4 shadow-2xl"
     >
       <form onSubmit={handleSubmit} className="space-y-3">
         {/* Title */}
@@ -201,7 +201,7 @@ function QuickAddForm({ columnId, projectId, onClose, members, currentUser }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What needs to be done?"
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm font-semibold text-white placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+          className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
         />
 
         {/* Description */}
@@ -210,7 +210,7 @@ function QuickAddForm({ columnId, projectId, onClose, members, currentUser }) {
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
           placeholder="Add details (optional)..."
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-white/20 resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+          className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-muted-foreground/45 resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50"
         />
 
         {/* Priority & Due date */}
@@ -222,11 +222,11 @@ function QuickAddForm({ columnId, projectId, onClose, members, currentUser }) {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
+              className="w-full bg-secondary/50 border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none"
             >
-              <option value="low" className="bg-[#1a1f2e]">🟢 Low</option>
-              <option value="medium" className="bg-[#1a1f2e]">🟡 Medium</option>
-              <option value="high" className="bg-[#1a1f2e]">🔴 High</option>
+              <option value="low" className="bg-card text-foreground">🟢 Low</option>
+              <option value="medium" className="bg-card text-foreground">🟡 Medium</option>
+              <option value="high" className="bg-card text-foreground">🔴 High</option>
             </select>
           </div>
           <div className="space-y-1">
@@ -237,13 +237,13 @@ function QuickAddForm({ columnId, projectId, onClose, members, currentUser }) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none [color-scheme:dark]"
+              className="w-full bg-secondary/50 border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
         </div>
 
         {/* Assignee Picker */}
-        <div className="pt-1 border-t border-white/5">
+        <div className="pt-1 border-t border-border">
           <AssigneePicker
             members={members}
             value={assignee}
@@ -257,7 +257,7 @@ function QuickAddForm({ columnId, projectId, onClose, members, currentUser }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-white/10 text-muted-foreground text-xs transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-secondary text-muted-foreground text-xs transition-colors"
           >
             <X className="h-3.5 w-3.5" /> Cancel
           </button>
@@ -288,7 +288,7 @@ function TeamMembersBar({ members }) {
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
-      className="mb-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur"
+      className="mb-4 p-4 rounded-xl border border-border bg-card shadow-sm"
     >
       <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
         <Users className="h-3.5 w-3.5" /> Workspace Team
@@ -297,14 +297,14 @@ function TeamMembersBar({ members }) {
         {members.map((m) => (
           <div
             key={m._id}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-border bg-secondary/40 hover:bg-secondary/70 transition-all duration-200"
           >
             <div className="h-7 w-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 shadow">
               {getInitials(m.name)}
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <p className="text-xs font-semibold text-white/90 truncate leading-snug">
+                <p className="text-xs font-semibold text-foreground truncate leading-snug">
                   {m.name}
                 </p>
                 {m.status === "pending" && (
@@ -400,14 +400,14 @@ function KanbanColumn({ column, tasks, projectId, currentUser, members }) {
           <div className={`p-1.5 rounded-lg bg-gradient-to-br ${column.accent}`}>
             <column.icon className="h-3.5 w-3.5 text-white" />
           </div>
-          <span className="text-sm font-bold text-white">{column.label}</span>
+          <span className="text-sm font-bold text-slate-800 dark:text-white">{column.label}</span>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${column.badge}`}>
             {tasks.length}
           </span>
         </div>
         <button
           onClick={() => setShowQuickAdd(true)}
-          className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors"
+          className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
           title="Add task"
         >
           <Plus className="h-4 w-4" />
@@ -416,7 +416,7 @@ function KanbanColumn({ column, tasks, projectId, currentUser, members }) {
 
       {/* Tasks container */}
       <div
-        className={`flex-1 overflow-y-auto p-3 space-y-3 rounded-b-2xl bg-white/[0.02] border ${column.border} border-t-0 min-h-[200px] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10`}
+        className={`flex-1 overflow-y-auto p-3 space-y-3 rounded-b-2xl bg-slate-500/[0.03] dark:bg-white/[0.01] border ${column.border} border-t-0 min-h-[200px] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/10`}
       >
         <AnimatePresence>
           {showQuickAdd && (
