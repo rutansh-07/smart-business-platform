@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Activity, CreditCard, DollarSign, Users, TrendingUp, Briefcase } from "lucide-react"
+import { Activity, CreditCard, IndianRupee, Users, TrendingUp, Briefcase } from "lucide-react"
 import { motion } from "framer-motion"
 import Tilt from "react-parallax-tilt"
 import api from "../utils/api"
@@ -96,7 +96,6 @@ function RecentTransactionsSkeleton() {
 export function Dashboard() {
   const [hoveredMonth, setHoveredMonth] = useState(null)
   const [isLaptop, setIsLaptop] = useState(false)
-  const [projectCount, setProjectCount] = useState(142)
   const [isLoading, setIsLoading] = useState(true)
 
   const { socket } = useSocket()
@@ -111,15 +110,11 @@ export function Dashboard() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // Dynamic MongoDB database query for total active projects count
+  // Simulate loading state for dashboard
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setIsLoading(true)
-        const response = await api.get("/api/projects")
-        setProjectCount(response.data.length)
-      } catch (error) {
-        console.error("Failed to load projects count from MongoDB:", error)
       } finally {
         // Enforce 800ms timer to showcase the beautiful skeletons and prevent layout flicker
         setTimeout(() => {
@@ -134,17 +129,7 @@ export function Dashboard() {
   useEffect(() => {
     if (!socket) return
 
-    socket.on("project_created", () => {
-      setProjectCount((prev) => prev + 1)
-    })
-
-    socket.on("project_deleted", () => {
-      setProjectCount((prev) => Math.max(0, prev - 1))
-    })
-
     return () => {
-      socket.off("project_created")
-      socket.off("project_deleted")
     }
   }, [socket])
 
@@ -161,17 +146,17 @@ export function Dashboard() {
     visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } }
   }
 
-  // Localized Revenue Chart Data (matching Analytics page)
-  const monthlyRevenue = [
-    { month: "Jan", revenue: 450000, projects: 4 },
-    { month: "Feb", revenue: 520000, projects: 6 },
-    { month: "Mar", revenue: 490000, projects: 5 },
-    { month: "Apr", revenue: 680000, projects: 8 },
-    { month: "May", revenue: 840000, projects: 12 },
-    { month: "Jun", revenue: 950000, projects: 15 },
+  // Localized Market Trend Data
+  const monthlyMarket = [
+    { month: "Jan", value: 21200, volume: 154 },
+    { month: "Feb", value: 21800, volume: 162 },
+    { month: "Mar", value: 22100, volume: 175 },
+    { month: "Apr", value: 22350, volume: 140 },
+    { month: "May", value: 22800, volume: 190 },
+    { month: "Jun", value: 23500, volume: 210 },
   ]
-  const maxRevenue = Math.max(...monthlyRevenue.map((d) => d.revenue))
-  const yMax = Math.ceil(maxRevenue / 100000) * 100000
+  const maxValue = Math.max(...monthlyMarket.map((d) => d.value))
+  const yMax = Math.ceil(maxValue / 1000) * 1000
   const yTicks = Array.from({ length: 5 }, (_, i) => yMax - (yMax / 4) * i)
 
   // Tilt settings for uniform premium feel
@@ -233,80 +218,80 @@ export function Dashboard() {
       {/* 4 Metric Cards with Parallax-Tilt 3D Effects */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         
-        {/* Metric 1: Total Revenue */}
+        {/* Metric 1: NIFTY 50 */}
         <motion.div variants={itemVariants}>
           <Tilt {...tiltOptions} tiltEnable={isLaptop} glareEnable={isLaptop} glareColor="#3b82f6">
             <Card className="border-t-4 border-t-blue-500 shadow-lg bg-card/50 backdrop-blur-sm h-full flex flex-col justify-between">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue (INR)</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">NIFTY 50</CardTitle>
                 <div className="p-2 bg-blue-500/10 rounded-full">
-                  <DollarSign className="h-5 w-5 text-blue-500" />
+                  <TrendingUp className="h-5 w-5 text-blue-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold privacy-mask">₹34,52,231</div>
+                <div className="text-3xl font-extrabold privacy-mask">₹23,547.75</div>
                 <p className="text-sm text-green-500 flex items-center mt-2 font-medium">
-                  <TrendingUp className="h-4 w-4 mr-1" /> +20.1% from last month
+                  <TrendingUp className="h-4 w-4 mr-1" /> +0.12% from last close
                 </p>
               </CardContent>
             </Card>
           </Tilt>
         </motion.div>
 
-        {/* Metric 2: New Clients */}
+        {/* Metric 2: SENSEX */}
         <motion.div variants={itemVariants}>
           <Tilt {...tiltOptions} tiltEnable={isLaptop} glareEnable={isLaptop} glareColor="#a855f7">
             <Card className="border-t-4 border-t-purple-500 shadow-lg bg-card/50 backdrop-blur-sm h-full flex flex-col justify-between">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">New Leads</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">SENSEX</CardTitle>
                 <div className="p-2 bg-purple-500/10 rounded-full">
-                  <Users className="h-5 w-5 text-purple-500" />
+                  <Activity className="h-5 w-5 text-purple-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold">+2,350</div>
+                <div className="text-3xl font-extrabold">₹74,775.74</div>
                 <p className="text-sm text-green-500 flex items-center mt-2 font-medium">
-                  <TrendingUp className="h-4 w-4 mr-1" /> +18.1% organic growth
+                  <TrendingUp className="h-4 w-4 mr-1" /> +0.25% from last close
                 </p>
               </CardContent>
             </Card>
           </Tilt>
         </motion.div>
 
-        {/* Metric 3: Active Projects */}
+        {/* Metric 3: Gold Rate */}
         <motion.div variants={itemVariants}>
           <Tilt {...tiltOptions} tiltEnable={isLaptop} glareEnable={isLaptop} glareColor="#06b6d4">
             <Card className="border-t-4 border-t-cyan-500 shadow-lg bg-card/50 backdrop-blur-sm h-full flex flex-col justify-between">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Active Projects</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Gold (24K) per 10g (INR)</CardTitle>
                 <div className="p-2 bg-cyan-500/10 rounded-full">
                   <Briefcase className="h-5 w-5 text-cyan-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold">{projectCount}</div>
+                <div className="text-3xl font-extrabold">₹1,56,460</div>
                 <p className="text-sm text-green-500 flex items-center mt-2 font-medium">
-                  <TrendingUp className="h-4 w-4 mr-1" /> Verified from MongoDB
+                  <TrendingUp className="h-4 w-4 mr-1" /> +0.8% from yesterday
                 </p>
               </CardContent>
             </Card>
           </Tilt>
         </motion.div>
 
-        {/* Metric 4: Active Now */}
+        {/* Metric 4: USD/INR */}
         <motion.div variants={itemVariants}>
           <Tilt {...tiltOptions} tiltEnable={isLaptop} glareEnable={isLaptop} glareColor="#f97316">
             <Card className="border-t-4 border-t-orange-500 shadow-lg bg-card/50 backdrop-blur-sm h-full flex flex-col justify-between">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Active Members</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">USD/INR Exchange</CardTitle>
                 <div className="p-2 bg-orange-500/10 rounded-full">
-                  <Activity className="h-5 w-5 text-orange-500" />
+                  <CreditCard className="h-5 w-5 text-orange-500" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold">+573</div>
-                <p className="text-sm text-muted-foreground mt-2 font-medium">
-                  +201 since last hour
+                <div className="text-3xl font-extrabold">₹95.05</div>
+                <p className="text-sm text-rose-500 mt-2 font-medium">
+                  -0.05% since last hour
                 </p>
               </CardContent>
             </Card>
@@ -321,8 +306,8 @@ export function Dashboard() {
         <motion.div variants={itemVariants} className="col-span-full lg:col-span-4 h-full">
           <Card className="h-full shadow-lg border-none bg-card/60 backdrop-blur flex flex-col justify-between">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Revenue Growth Trend</CardTitle>
-              <CardDescription>Visual chart overview for the first half of the year (INR ₹)</CardDescription>
+              <CardTitle className="text-xl">Market Growth Trend</CardTitle>
+              <CardDescription>Visual chart overview for the first half of the year (NIFTY 50 Index)</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 relative flex-1 flex flex-col justify-end select-none">
               
@@ -333,9 +318,9 @@ export function Dashboard() {
                 <div className="flex flex-col justify-between text-[9px] sm:text-[11px] text-muted-foreground font-semibold pr-1 sm:pr-2 select-none text-right w-10 sm:w-14">
                   {yTicks.map((tick) => (
                     <span key={tick}>
-                      {tick >= 100000 
-                        ? `₹${(tick / 100000).toFixed(1).replace(".0", "")}L` 
-                        : `₹${tick}`}
+                      {tick >= 1000 
+                        ? `${(tick / 1000).toFixed(1).replace(".0", "")}K` 
+                        : `${tick}`}
                     </span>
                   ))}
                 </div>
@@ -360,7 +345,7 @@ export function Dashboard() {
                     <div 
                       className="absolute top-0 bottom-0 border-l border-dashed border-primary/30 pointer-events-none z-0"
                       style={{ 
-                        left: `${((hoveredMonth + 0.5) / monthlyRevenue.length) * 100}%` 
+                        left: `${((hoveredMonth + 0.5) / monthlyMarket.length) * 100}%` 
                       }}
                     />
                   )}
@@ -372,27 +357,27 @@ export function Dashboard() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       className="absolute -top-14 -translate-x-1/2 bg-popover/90 border border-border/80 p-2 sm:p-2.5 rounded-lg shadow-xl text-[10px] sm:text-xs z-30 flex flex-col gap-0.5 w-36 sm:w-40 backdrop-blur-md transition-all duration-150 pointer-events-none"
                       style={{ 
-                        left: `${((hoveredMonth + 0.5) / monthlyRevenue.length) * 100}%` 
+                        left: `${((hoveredMonth + 0.5) / monthlyMarket.length) * 100}%` 
                       }}
                     >
                       <div className="flex items-center justify-between font-bold border-b border-border/30 pb-1">
-                        <span className="text-foreground">{monthlyRevenue[hoveredMonth].month}</span>
-                        <span className="text-[9px] text-muted-foreground uppercase font-black">H1 Revenue</span>
+                        <span className="text-foreground">{monthlyMarket[hoveredMonth].month}</span>
+                        <span className="text-[9px] text-muted-foreground uppercase font-black">Market Trend</span>
                       </div>
                       <div className="flex items-center justify-between text-muted-foreground mt-1">
-                        <span>Revenue:</span>
-                        <span className="font-bold text-blue-500 privacy-mask">₹{monthlyRevenue[hoveredMonth].revenue.toLocaleString("en-IN")}</span>
+                        <span>Index Value:</span>
+                        <span className="font-bold text-blue-500 privacy-mask">{monthlyMarket[hoveredMonth].value.toLocaleString("en-IN")}</span>
                       </div>
                       <div className="flex items-center justify-between text-muted-foreground">
-                        <span>Contracts:</span>
-                        <span className="font-bold text-foreground">{monthlyRevenue[hoveredMonth].projects} Active</span>
+                        <span>Volume (Cr):</span>
+                        <span className="font-bold text-foreground">{monthlyMarket[hoveredMonth].volume}M</span>
                       </div>
                     </motion.div>
                   )}
 
                   {/* Bars */}
-                  {monthlyRevenue.map((d, index) => {
-                    const heightPercentage = (d.revenue / yMax) * 100
+                  {monthlyMarket.map((d, index) => {
+                    const heightPercentage = (d.value / yMax) * 100
                     return (
                       <div 
                         key={d.month} 
@@ -418,7 +403,7 @@ export function Dashboard() {
               <div className="flex gap-2 sm:gap-4 items-center mt-2">
                 <div className="w-10 sm:w-14 pr-1 sm:pr-2" />
                 <div className="flex-1 flex justify-between gap-2 sm:gap-3 px-2">
-                  {monthlyRevenue.map((d, index) => (
+                  {monthlyMarket.map((d, index) => (
                     <span 
                       key={d.month} 
                       className={`flex-1 text-center text-[10px] sm:text-xs font-semibold select-none transition-colors duration-200 ${
