@@ -71,7 +71,7 @@ export const verifyInviteToken = async (req, res) => {
       return res.status(404).json({ message: "Invalid or expired invite link. Please ask your admin for a new one." });
     }
 
-    res.json({ name: workspace.name });
+    res.json({ name: workspace.name, workspaceName: workspace.name });
   } catch (error) {
     console.error("Verify Invite Token Error:", error);
     res.status(500).json({ message: error.message });
@@ -204,6 +204,147 @@ export const inviteMemberByEmail = async (req, res) => {
     });
   } catch (error) {
     console.error("Invite Member by Email Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Complete workspace onboarding
+// @route   PUT /api/workspaces/onboarding
+// @access  Private (Admin only)
+export const completeOnboarding = async (req, res) => {
+  try {
+    const { name, businessType } = req.body;
+
+    if (!req.user.workspaceId) {
+      return res.status(400).json({ message: "No workspace associated with this user." });
+    }
+
+    const workspace = await Workspace.findById(req.user.workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found." });
+    }
+
+    // Only owner/admin can update onboarding
+    if (workspace.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to update workspace onboarding." });
+    }
+
+    if (name) workspace.name = name;
+    if (businessType) workspace.businessType = businessType;
+    workspace.onboardingCompleted = true;
+
+    await workspace.save();
+
+    res.json({
+      message: "Onboarding completed successfully.",
+      workspace: {
+        _id: workspace._id,
+        name: workspace.name,
+        businessType: workspace.businessType,
+        onboardingCompleted: workspace.onboardingCompleted,
+      }
+    });
+  } catch (error) {
+    console.error("Complete Onboarding Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Skip workspace onboarding
+// @route   PUT /api/workspaces/skip-onboarding
+// @access  Private (Admin only)
+export const skipOnboarding = async (req, res) => {
+  try {
+    if (!req.user.workspaceId) {
+      return res.status(400).json({ message: "No workspace associated with this user." });
+    }
+
+    const workspace = await Workspace.findById(req.user.workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found." });
+    }
+
+    if (workspace.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to update workspace onboarding." });
+    }
+
+    workspace.onboardingCompleted = true;
+    await workspace.save();
+
+    res.json({
+      message: "Onboarding skipped.",
+      workspace: {
+        _id: workspace._id,
+        name: workspace.name,
+        onboardingCompleted: workspace.onboardingCompleted,
+      }
+    });
+  } catch (error) {
+    console.error("Skip Onboarding Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Update workspace name/details
+// @route   PUT /api/workspaces
+// @access  Private (Admin only)
+export const updateWorkspace = async (req, res) => {
+  try {
+    const { name, businessType } = req.body;
+
+    if (!req.user.workspaceId) {
+      return res.status(400).json({ message: "No workspace associated with this user." });
+    }
+
+    const workspace = await Workspace.findById(req.user.workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found." });
+    }
+
+    if (workspace.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to update workspace." });
+    }
+
+    if (name) workspace.name = name;
+    if (businessType !== undefined) workspace.businessType = businessType;
+
+    await workspace.save();
+
+    res.json({
+      message: "Workspace updated successfully.",
+      workspace: {
+        _id: workspace._id,
+        name: workspace.name,
+        businessType: workspace.businessType,
+      }
+    });
+  } catch (error) {
+    console.error("Update Workspace Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get workspace details
+// @route   GET /api/workspaces
+// @access  Private
+export const getWorkspaceDetails = async (req, res) => {
+  try {
+    if (!req.user.workspaceId) {
+      return res.status(400).json({ message: "No workspace associated with this user." });
+    }
+
+    const workspace = await Workspace.findById(req.user.workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found." });
+    }
+
+    res.json(workspace);
+  } catch (error) {
+    console.error("Get Workspace Details Error:", error);
     res.status(500).json({ message: error.message });
   }
 };

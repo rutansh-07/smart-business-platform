@@ -20,6 +20,7 @@ const Projects = lazy(() => import("./pages/Projects").then(module => ({ default
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })))
 const Settings = lazy(() => import("./pages/Settings").then(module => ({ default: module.Settings })))
 const ProjectTasks = lazy(() => import("./pages/ProjectTasks").then(module => ({ default: module.ProjectTasks })))
+const Onboarding = lazy(() => import("./pages/Onboarding").then(module => ({ default: module.Onboarding })))
 
 // Premium dynamic loading spinner fallback
 function PageLoader() {
@@ -59,6 +60,16 @@ function App() {
                 path="/join" 
                 element={<Join />}
               />
+              <Route 
+                path="/onboarding" 
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Onboarding />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                } 
+              />
 
 
               {/* Protected Dashboard Routes (Prevent unauthorized users from seeing them) */}
@@ -75,14 +86,7 @@ function App() {
                 <Route path="projects" element={<Projects />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="projects/:projectId/tasks" element={<ProjectTasks />} />
-                <Route 
-                  path="settings" 
-                  element={
-                    <AdminRoute>
-                      <Settings />
-                    </AdminRoute>
-                  } 
-                />
+                <Route path="settings" element={<Settings />} />
               </Route>
 
               {/* Catch-all Redirect */}

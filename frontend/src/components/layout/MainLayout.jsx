@@ -65,15 +65,9 @@ export function MainLayout() {
         </div>
       </main>
 
-      {/* Minimalist Footer */}
       <footer className="w-full border-t border-border/10 py-5 text-center text-xs text-muted-foreground bg-card/10 backdrop-blur-xs mt-auto mb-28 lg:mb-0 relative z-10">
-        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© {new Date().getFullYear()} SmartBiz B2B SaaS. All rights reserved.</p>
-          <div className="flex gap-4">
-            <span className="hover:text-foreground cursor-pointer transition-colors">Privacy Policy</span>
-            <span className="hover:text-foreground cursor-pointer transition-colors">Terms of Service</span>
-            <span className="hover:text-foreground cursor-pointer transition-colors">Support Portal</span>
-          </div>
+        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <p>© {new Date().getFullYear()} SmartBiz. All rights reserved.</p>
         </div>
       </footer>
 

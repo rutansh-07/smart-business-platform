@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, Loader2, Zap, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
-import axios from "axios"
+import api from "../utils/api"
 import { toast } from "sonner"
 import { ParticlesBackground } from "../components/ParticlesBackground"
 
@@ -23,7 +23,7 @@ export function Join() {
 
   useEffect(() => {
     if (token) {
-      axios.get(`/api/workspaces/verify-invite/${token}`)
+      api.get(`/api/workspaces/verify-invite/${token}`)
         .then((res) => setWorkspaceName(res.data.name))
         .catch(() => toast.error("Invalid or expired invite link."));
     }
@@ -39,7 +39,7 @@ export function Join() {
 
     setIsLoading(true)
     try {
-      const response = await axios.post("/api/auth/register-employee", { 
+      const response = await api.post("/api/auth/register-employee", { 
         name, email, password, token 
       })
       localStorage.setItem("smartbiz_token", response.data.token)

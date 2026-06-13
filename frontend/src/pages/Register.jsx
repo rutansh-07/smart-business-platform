@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, Loader2, Zap, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
-import axios from "axios"
+import api from "../utils/api"
 import { toast } from "sonner"
 import { ParticlesBackground } from "../components/ParticlesBackground"
 
@@ -21,11 +21,11 @@ export function Register() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await axios.post("/api/auth/register", { name, email, password })
+      const response = await api.post("/api/auth/register", { name, email, password })
       localStorage.setItem("smartbiz_token", response.data.token)
       localStorage.setItem("smartbiz_user", JSON.stringify(response.data))
       toast.success("Account created successfully! Welcome to SmartBiz.")
-      navigate("/dashboard")
+      navigate("/onboarding")
     } catch (error) {
       toast.error(error.response?.data?.message || "An error occurred during registration.")
     } finally {

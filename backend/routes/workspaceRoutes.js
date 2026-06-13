@@ -1,8 +1,26 @@
 import express from "express";
-import { getWorkspaceInvite, regenerateWorkspaceInvite, verifyInviteToken, getWorkspaceMembers, removeWorkspaceMember, inviteMemberByEmail, getTeamMembers } from "../controllers/workspaceController.js";
+import {
+  getWorkspaceInvite,
+  regenerateWorkspaceInvite,
+  verifyInviteToken,
+  getWorkspaceMembers,
+  removeWorkspaceMember,
+  inviteMemberByEmail,
+  getTeamMembers,
+  completeOnboarding,
+  skipOnboarding,
+  updateWorkspace,
+  getWorkspaceDetails,
+} from "../controllers/workspaceController.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+// Workspace-specific routes
+router.get("/", protect, getWorkspaceDetails);
+router.put("/", protect, isAdmin, updateWorkspace);
+router.put("/onboarding", protect, isAdmin, completeOnboarding);
+router.put("/skip-onboarding", protect, isAdmin, skipOnboarding);
 
 router.get("/invite", protect, isAdmin, getWorkspaceInvite);
 router.post("/regenerate-invite", protect, isAdmin, regenerateWorkspaceInvite);

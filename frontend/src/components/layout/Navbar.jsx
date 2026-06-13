@@ -93,7 +93,7 @@ export function Navbar() {
         {/* ─── MOBILE TAB BAR — logged in ─── */}
         {token ? (
           <div className="flex lg:hidden w-full items-center justify-around">
-            {NAV_LINKS.filter(({ to }) => to !== "/settings" || user?.role === "admin").map(({ to, label, icon: Icon }) => {
+            {NAV_LINKS.map(({ to, label, icon: Icon }) => {
               const active = isActive(to);
               return (
                 <Link
@@ -157,7 +157,7 @@ export function Navbar() {
 
             {token && (
               <nav className="flex items-center gap-1">
-                {NAV_LINKS.filter(({ to }) => to !== "/settings" || user?.role === "admin").map(({ to, label }) => {
+                {NAV_LINKS.map(({ to, label }) => {
                   const active = isActive(to);
                   return (
                     <Link
@@ -358,27 +358,23 @@ export function Navbar() {
 
                       <div className="-mx-2 my-1 h-px bg-border" />
 
-                      {user?.role === "admin" && (
-                        <>
-                          <Link
-                            to="/settings"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-                          >
-                            <User className="h-4 w-4" />
-                            <span>My Profile</span>
-                          </Link>
+                      <Link
+                        to="/settings"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>My Profile</span>
+                      </Link>
 
-                          <Link
-                            to="/settings"
-                            onClick={() => setIsDropdownOpen(false)}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-                          >
-                            <SettingsIcon className="h-4 w-4" />
-                            <span>Settings</span>
-                          </Link>
-                        </>
-                      )}
+                      <Link
+                        to="/settings"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                      >
+                        <SettingsIcon className="h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
 
                       <div className="-mx-2 my-1 h-px bg-border" />
 

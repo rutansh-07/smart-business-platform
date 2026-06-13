@@ -18,6 +18,14 @@ const workspaceSchema = new mongoose.Schema(
       unique: true,
       sparse: true, // Allow multiple nulls if ever needed
     },
+    businessType: {
+      type: String,
+      trim: true,
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, Loader2, Zap, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
-import axios from "axios"
+import api from "../utils/api"
 import { toast } from "sonner"
 import { ParticlesBackground } from "../components/ParticlesBackground"
 
@@ -20,7 +20,7 @@ export function Login() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await axios.post("/api/auth/login", { email, password })
+      const response = await api.post("/api/auth/login", { email, password })
       localStorage.setItem("smartbiz_token", response.data.token)
       localStorage.setItem("smartbiz_user", JSON.stringify(response.data))
       toast.success(`Welcome back, ${response.data.name}!`)

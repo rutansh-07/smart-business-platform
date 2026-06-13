@@ -18,6 +18,13 @@ export function Settings() {
   const [isUploading, setIsUploading] = useState(false)
   const [user, setUser] = useState(null)
 
+  // Workspace State
+  const [workspaceInfo, setWorkspaceInfo] = useState(null)
+  const [wsName, setWsName] = useState("")
+  const [wsBusinessType, setWsBusinessType] = useState("")
+  const [isSavingWorkspace, setIsSavingWorkspace] = useState(false)
+  const [isFetchingWorkspace, setIsFetchingWorkspace] = useState(false)
+
   // Security State
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
@@ -56,6 +63,46 @@ export function Settings() {
       setAvatar(parsed.avatar || "")
     }
   }, [])
+
+  const fetchWorkspaceDetails = async () => {
+    try {
+      setIsFetchingWorkspace(true)
+      const { data } = await api.get("/api/workspaces")
+      setWorkspaceInfo(data)
+      setWsName(data.name || "")
+      setWsBusinessType(data.businessType || "")
+    } catch (error) {
+      console.error("Failed to fetch workspace details:", error)
+    } finally {
+      setIsFetchingWorkspace(false)
+    }
+  }
+
+  useEffect(() => {
+    if (user?.role === "admin" && activeTab === "profile") {
+      fetchWorkspaceDetails()
+    }
+  }, [user, activeTab])
+
+  const handleUpdateWorkspace = async (e) => {
+    e.preventDefault()
+    if (!wsName) {
+      return toast.warning("Workspace name is required.")
+    }
+
+    try {
+      setIsSavingWorkspace(true)
+      const response = await api.put("/api/workspaces", { name: wsName, businessType: wsBusinessType })
+      setWorkspaceInfo(response.data.workspace)
+      
+      // Update local copy of workspaceName if any or just notify
+      toast.success("Workspace settings updated successfully!")
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update workspace settings.")
+    } finally {
+      setIsSavingWorkspace(false)
+    }
+  }
 
   // 1. Update Profile Info in MongoDB & localStorage
   const handleUpdateProfile = async (e) => {
@@ -365,8 +412,59 @@ export function Settings() {
                         </motion.div>
                       </div>
                     </form>
-                  </CardContent>
                 </Card>
+
+                {user?.role === "admin" && (
+                  <Card className="glass-panel border-none shadow-lg bg-card/60 backdrop-blur mt-6">
+                    <CardHeader>
+                      <CardTitle>Workspace Settings</CardTitle>
+                      <CardDescription>Configure your organization's workspace name and industry.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isFetchingWorkspace ? (
+                        <div className="flex justify-center py-6">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        </div>
+                      ) : (
+                        <form onSubmit={handleUpdateWorkspace} className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Workspace Name</label>
+                            <Input
+                              value={wsName}
+                              onChange={(e) => setWsName(e.target.value)}
+                              className="bg-background/40 border-border/50"
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Business / Industry Type</label>
+                            <select
+                              value={wsBusinessType}
+                              onChange={(e) => setWsBusinessType(e.target.value)}
+                              className="flex h-10 w-full rounded-md border border-border/50 bg-background/40 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-200"
+                            >
+                              <option value="Tech">Tech & Software</option>
+                              <option value="Consulting">Consulting</option>
+                              <option value="Agency">Agency & Design</option>
+                              <option value="Retail">Retail & E-commerce</option>
+                              <option value="Manufacturing">Manufacturing</option>
+                              <option value="Other">Other Services</option>
+                            </select>
+                          </div>
+
+                          <div className="flex justify-end pt-2">
+                            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                              <Button type="submit" disabled={isSavingWorkspace} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+                                {isSavingWorkspace ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                Save Workspace
+                              </Button>
+                            </motion.div>
+                          </div>
+                        </form>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </motion.div>
             )}
 
