@@ -1,9 +1,10 @@
 import User from "../models/User.js";
 import Workspace from "../models/Workspace.js";
 import jwt from "jsonwebtoken";
+import { getJwtSecret } from "../config/env.js";
 
 const generateToken = (id, role, workspaceId) => {
-  return jwt.sign({ id, role, workspaceId }, process.env.JWT_SECRET || "fallback_secret", {
+  return jwt.sign({ id, role, workspaceId }, getJwtSecret(), {
     expiresIn: "30d",
   });
 };

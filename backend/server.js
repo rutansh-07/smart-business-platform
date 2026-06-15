@@ -3,26 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Load environment variables relative to this file
-dotenv.config({ path: path.join(__dirname, '.env') });
-
 import connectDB from './config/db.js';
-
-// Connect to Database
-connectDB();
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Routes
+import { validateEnv } from './config/env.js';
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import workspaceRoutes from './routes/workspaceRoutes.js';
@@ -30,6 +12,29 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '.env') });
+validateEnv();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
+
+app.set('trust proxy', 1);
+
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
@@ -39,32 +44,54 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-// Make uploads folder static
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Serve Frontend in Production for Unified Deployment
-if (process.env.NODE_ENV === 'production') {
+if (isProduction) {
   const frontendPath = path.join(__dirname, '../frontend/dist');
-  // Set static folder to the Vite build output
+  const indexPath = path.join(frontendPath, 'index.html');
+
   app.use(express.static(frontendPath));
 
-  // Any route that is not an API route will be redirected to the React index.html
-  app.get('*', (req, res) =>
-    res.sendFile(path.join(frontendPath, 'index.html'))
-  );
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return next();
+    }
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        next(err);
+      }
+    });
+  });
 } else {
-  // Basic Route to test the server in development
   app.get('/', (req, res) => {
-    res.send('Smart Business Management Platform API is running in Development mode!');
+    res.send(
+      'Smart Business Management Platform API is running in Development mode!'
+    );
   });
 }
 
-// If not on Vercel, listen on the port (for local dev or Render deployment)
-if (process.env.VERCEL !== '1') {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(err.status || 500).json({
+    message: isProduction ? 'Internal server error' : err.message,
   });
-}
+});
 
-// Export for Vercel Serverless
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(
+        `Server running on port ${PORT} (${isProduction ? 'production' : 'development'})`
+      );
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
+
 export default app;
