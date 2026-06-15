@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "", // Utilizes our Vite server proxy
+  baseURL: import.meta.env.VITE_API_URL || "", // Uses Vercel environment variable, or Vite proxy for local dev
 });
 
 // Automatically inject JWT Token into the Authorization header of every request
