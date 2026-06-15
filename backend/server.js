@@ -23,6 +23,7 @@ import workspaceRoutes from './routes/workspaceRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import path from 'path';
 
 const __dirname = path.resolve();
@@ -33,6 +34,7 @@ app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Make uploads folder static
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
@@ -53,12 +55,12 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-import http from 'http';
-import { initSocket } from './socket.js';
+// If not on Vercel, listen on the port (for local dev or Render deployment)
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
 
-const server = http.createServer(app);
-initSocket(server);
-
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Export for Vercel Serverless
+export default app;

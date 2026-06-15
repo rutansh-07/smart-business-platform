@@ -59,31 +59,6 @@ export const TaskProvider = ({ children }) => {
     await apiReorderTasks(reorderData);
   }, []);
 
-  // Socket handlers — called from KanbanBoard to sync external updates
-  const handleSocketTaskCreated = useCallback((task) => {
-    setTasks((prev) => {
-      if (prev.some((t) => t._id === task._id)) return prev;
-      return [...prev, task];
-    });
-  }, []);
-
-  const handleSocketTaskUpdated = useCallback((task) => {
-    setTasks((prev) => prev.map((t) => (t._id === task._id ? task : t)));
-  }, []);
-
-  const handleSocketTaskDeleted = useCallback(({ taskId }) => {
-    setTasks((prev) => prev.filter((t) => t._id !== taskId));
-  }, []);
-
-  const handleSocketTasksReordered = useCallback(({ tasks: reordered }) => {
-    setTasks((prev) => {
-      const map = Object.fromEntries(reordered.map((r) => [r._id, r]));
-      return prev.map((t) =>
-        map[t._id] ? { ...t, status: map[t._id].status, order: map[t._id].order } : t
-      );
-    });
-  }, []);
-
   return (
     <TaskContext.Provider
       value={{
@@ -95,10 +70,6 @@ export const TaskProvider = ({ children }) => {
         deleteTask,
         reorderTasksLocally,
         persistReorder,
-        handleSocketTaskCreated,
-        handleSocketTaskUpdated,
-        handleSocketTaskDeleted,
-        handleSocketTasksReordered,
       }}
     >
       {children}

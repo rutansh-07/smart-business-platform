@@ -5,6 +5,7 @@ import { Building2, UserCircle, LogOut, Settings as SettingsIcon, User, SlidersH
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { NotificationsPanel } from "../NotificationsPanel";
 
 const NAV_LINKS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -186,6 +187,8 @@ export function Navbar() {
 
           {/* Right: Preferences + Auth/Profile */}
           <div className="flex items-center gap-3">
+
+            {token && <NotificationsPanel token={token} />}
 
             {/* Preferences Panel */}
             <div className="relative">

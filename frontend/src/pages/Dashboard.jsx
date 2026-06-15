@@ -5,8 +5,6 @@ import { Activity, Briefcase, Users, CheckCircle2, AlertCircle, Clock, ChevronRi
 import { motion } from "framer-motion"
 import Tilt from "react-parallax-tilt"
 import api from "../utils/api"
-import { useSocket } from "../context/SocketContext"
-
 // Premium metric card skeleton matching the dashboard card layout
 function MetricCardSkeleton() {
   return (
@@ -110,8 +108,6 @@ export function Dashboard() {
   })
   const [user, setUser] = useState(null)
 
-  const { socket } = useSocket()
-
   // Track if screen is a laptop/desktop (>= 1024px) to only enable 3D tilts there
   useEffect(() => {
     const handleResize = () => {
@@ -141,32 +137,6 @@ export function Dashboard() {
     }
     fetchDashboardData()
   }, [])
-
-  // Socket.IO Real-Time Updates for Dashboard Metrics
-  useEffect(() => {
-    if (!socket) return
-
-    // Listen to updates that require refetching dashboard
-    const handleUpdate = () => {
-      fetchDashboardData()
-    }
-
-    socket.on("task_created", handleUpdate)
-    socket.on("task_updated", handleUpdate)
-    socket.on("task_deleted", handleUpdate)
-    socket.on("project_created", handleUpdate)
-    socket.on("project_updated", handleUpdate)
-    socket.on("project_deleted", handleUpdate)
-
-    return () => {
-      socket.off("task_created", handleUpdate)
-      socket.off("task_updated", handleUpdate)
-      socket.off("task_deleted", handleUpdate)
-      socket.off("project_created", handleUpdate)
-      socket.off("project_updated", handleUpdate)
-      socket.off("project_deleted", handleUpdate)
-    }
-  }, [socket])
 
   const containerVariants = {
     hidden: { opacity: 0 },

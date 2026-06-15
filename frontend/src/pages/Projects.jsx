@@ -7,8 +7,6 @@ import { Briefcase, Clock, CheckCircle2, CircleDashed, Plus, Trash2, ChevronUp, 
 import { motion, AnimatePresence } from "framer-motion"
 import api from "../utils/api"
 import { toast } from "sonner"
-import { useSocket } from "../context/SocketContext"
-
 function ProjectCardSkeleton() {
   return (
     <Card className="shadow-md bg-card/60 backdrop-blur border border-border/20 h-full flex flex-col justify-between p-6 space-y-6">
@@ -37,8 +35,6 @@ export function Projects() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
-  
-  const { socket } = useSocket()
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("")
@@ -72,35 +68,6 @@ export function Projects() {
     fetchProjects()
   }, [])
 
-  // Socket.IO Real-Time Updates
-  useEffect(() => {
-    if (!socket) return
-
-    socket.on("project_created", (newProject) => {
-      setProjects((prev) => {
-        // Prevent duplicate if this client created it
-        if (prev.some((p) => p._id === newProject._id)) return prev;
-        return [newProject, ...prev];
-      })
-      toast.info(`New Project Added: ${newProject.name}`)
-    })
-
-    socket.on("project_updated", (updatedProject) => {
-      setProjects((prev) => prev.map((p) => (p._id === updatedProject._id ? updatedProject : p)))
-      // Only toast for updates not made by us. Too much noise otherwise.
-    })
-
-    socket.on("project_deleted", (deletedId) => {
-      setProjects((prev) => prev.filter((p) => p._id !== deletedId))
-      toast.warning("A project was removed.")
-    })
-
-    return () => {
-      socket.off("project_created")
-      socket.off("project_updated")
-      socket.off("project_deleted")
-    }
-  }, [socket])
 
   // Create Project
   const handleSubmit = async (e) => {

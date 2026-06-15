@@ -29,7 +29,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTask } from "../context/TaskContext";
-import { useSocket } from "../context/SocketContext";
 import { TaskCard } from "./TaskCard";
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -475,13 +474,8 @@ export function KanbanBoard({ projectId, projectName, members = [] }) {
     loadTasks,
     reorderTasksLocally,
     persistReorder,
-    handleSocketTaskCreated,
-    handleSocketTaskUpdated,
-    handleSocketTaskDeleted,
-    handleSocketTasksReordered,
   } = useTask();
 
-  const { socket, joinWorkspace } = useSocket();
   const [activeTask, setActiveTask] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [assigneeFilter, setAssigneeFilter] = useState(null);
@@ -492,41 +486,9 @@ export function KanbanBoard({ projectId, projectName, members = [] }) {
     if (saved) {
       const user = JSON.parse(saved);
       setCurrentUser(user);
-      if (user.workspaceId && joinWorkspace) {
-        joinWorkspace(user.workspaceId);
-      }
     }
     loadTasks(projectId);
-  }, [projectId, loadTasks, joinWorkspace]);
-
-  // Socket listeners
-  useEffect(() => {
-    if (!socket) return;
-    const onCreated = (task) => {
-      if (String(task.project) === String(projectId)) {
-        handleSocketTaskCreated(task);
-        toast.info(`New task: ${task.title}`, { icon: <Zap className="h-4 w-4" /> });
-      }
-    };
-    const onUpdated = (task) => {
-      if (String(task.project) === String(projectId)) handleSocketTaskUpdated(task);
-    };
-    const onDeleted = (payload) => {
-      if (String(payload.projectId) === String(projectId)) handleSocketTaskDeleted(payload);
-    };
-    const onReordered = (payload) => handleSocketTasksReordered(payload);
-
-    socket.on("task_created", onCreated);
-    socket.on("task_updated", onUpdated);
-    socket.on("task_deleted", onDeleted);
-    socket.on("tasks_reordered", onReordered);
-    return () => {
-      socket.off("task_created", onCreated);
-      socket.off("task_updated", onUpdated);
-      socket.off("task_deleted", onDeleted);
-      socket.off("tasks_reordered", onReordered);
-    };
-  }, [socket, projectId, handleSocketTaskCreated, handleSocketTaskUpdated, handleSocketTaskDeleted, handleSocketTasksReordered]);
+  }, [projectId, loadTasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })

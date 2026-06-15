@@ -1,5 +1,5 @@
 import Project from "../models/Project.js";
-import { getIO } from "../socket.js";
+import { createWorkspaceNotification } from "./notificationController.js";
 
 // @desc    Get all projects for the logged-in user
 // @route   GET /api/projects
@@ -61,12 +61,13 @@ export const createProject = async (req, res) => {
 
     const createdProject = await project.save();
     
-    // Emit real-time event to the workspace room
-    try {
-      getIO().to(`workspace_${req.user.workspaceId}`).emit("project_created", createdProject);
-    } catch (err) {
-      console.error("Socket emit failed:", err);
-    }
+    // Create Notification
+    await createWorkspaceNotification(
+      req.user.workspaceId,
+      req.user._id,
+      "created project",
+      createdProject.name
+    );
 
     res.status(201).json(createdProject);
   } catch (error) {
@@ -98,12 +99,13 @@ export const updateProject = async (req, res) => {
 
       const updatedProject = await project.save();
 
-      // Emit real-time event
-      try {
-        getIO().to(`workspace_${req.user.workspaceId}`).emit("project_updated", updatedProject);
-      } catch (err) {
-        console.error("Socket emit failed:", err);
-      }
+      // Create Notification
+      await createWorkspaceNotification(
+        req.user.workspaceId,
+        req.user._id,
+        "updated project",
+        updatedProject.name
+      );
 
       res.json(updatedProject);
     } else {
@@ -132,12 +134,13 @@ export const deleteProject = async (req, res) => {
 
       await project.deleteOne();
 
-      // Emit real-time event
-      try {
-        getIO().to(`workspace_${req.user.workspaceId}`).emit("project_deleted", req.params.id);
-      } catch (err) {
-        console.error("Socket emit failed:", err);
-      }
+      // Create Notification
+      await createWorkspaceNotification(
+        req.user.workspaceId,
+        req.user._id,
+        "deleted project",
+        project.name
+      );
 
       res.json({ message: "Project removed successfully" });
     } else {

@@ -1,7 +1,6 @@
 import Task from "../models/Task.js";
 import Project from "../models/Project.js";
-import { getIO } from "../socket.js";
-
+import { createWorkspaceNotification } from "./notificationController.js";
 // @desc    Get all tasks for a project
 // @route   GET /api/tasks/project/:projectId
 // @access  Protected
@@ -68,24 +67,13 @@ export const createTask = async (req, res) => {
       .populate("assignee", "name email avatar")
       .populate("creator", "name email avatar");
 
-    // Emit real-time event to workspace room
-    try {
-      const io = getIO();
-      io.to(`workspace_${workspaceId}`).emit("task_created", populatedTask);
-
-      // Notify the assignee if one was set at creation time
-      if (assignee) {
-        io.to(`workspace_${workspaceId}`).emit("task_assigned", {
-          taskId: populatedTask._id,
-          taskTitle: populatedTask.title,
-          assigneeId: assignee,
-          assignerName: req.user.name || "Someone",
-          projectId,
-        });
-      }
-    } catch (e) {
-      console.warn("Socket not available for task_created emit");
-    }
+    // Create Notification
+    await createWorkspaceNotification(
+      workspaceId,
+      req.user._id,
+      "created task",
+      populatedTask.title
+    );
 
     res.status(201).json(populatedTask);
   } catch (error) {
@@ -148,25 +136,13 @@ export const updateTask = async (req, res) => {
       .populate("assignee", "name email avatar")
       .populate("creator", "name email avatar");
 
-    // Emit real-time event
-    try {
-      const io = getIO();
-      io.to(`workspace_${workspaceId}`).emit("task_updated", updatedTask);
-
-      // Notify the NEW assignee if the assignee was changed
-      const newAssignee = assignee !== undefined ? (assignee || null) : null;
-      if (newAssignee && newAssignee !== previousAssignee) {
-        io.to(`workspace_${workspaceId}`).emit("task_assigned", {
-          taskId: updatedTask._id,
-          taskTitle: updatedTask.title,
-          assigneeId: newAssignee,
-          assignerName: req.user.name || "Someone",
-          projectId: updatedTask.project,
-        });
-      }
-    } catch (e) {
-      console.warn("Socket not available for task_updated emit");
-    }
+    // Create Notification
+    await createWorkspaceNotification(
+      workspaceId,
+      req.user._id,
+      "updated task",
+      updatedTask.title
+    );
 
     res.status(200).json(updatedTask);
   } catch (error) {
@@ -198,12 +174,13 @@ export const deleteTask = async (req, res) => {
 
     await task.deleteOne();
 
-    // Emit real-time event
-    try {
-      getIO().to(`workspace_${workspaceId}`).emit("task_deleted", { taskId: id, projectId: task.project });
-    } catch (e) {
-      console.warn("Socket not available for task_deleted emit");
-    }
+    // Create Notification
+    await createWorkspaceNotification(
+      workspaceId,
+      req.user._id,
+      "deleted task",
+      task.title
+    );
 
     res.status(200).json({ message: "Task deleted", taskId: id });
   } catch (error) {
@@ -229,12 +206,13 @@ export const reorderTasks = async (req, res) => {
 
     await Task.bulkWrite(bulkOps);
 
-    // Emit reorder event to all clients in the workspace
-    try {
-      getIO().to(`workspace_${workspaceId}`).emit("tasks_reordered", { tasks, workspaceId });
-    } catch (e) {
-      console.warn("Socket not available for tasks_reordered emit");
-    }
+    // Create Notification
+    await createWorkspaceNotification(
+      workspaceId,
+      req.user._id,
+      "reordered tasks",
+      "Board"
+    );
 
     res.status(200).json({ message: "Tasks reordered successfully" });
   } catch (error) {

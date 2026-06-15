@@ -9,8 +9,6 @@ import { Toaster } from "@/components/ui/sonner"
 import { Loader2 } from "lucide-react"
 import "./App.css"
 
-import { SocketProvider } from "./context/SocketContext"
-
 // Lazy load pages for maximum performance and instant dynamic bundle loading
 const Login = lazy(() => import("./pages/Login").then(module => ({ default: module.Login })))
 const Register = lazy(() => import("./pages/Register").then(module => ({ default: module.Register })))
@@ -35,9 +33,8 @@ function PageLoader() {
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="smartbiz-theme">
-      <SocketProvider>
-        <Router>
-          <Suspense fallback={<PageLoader />}>
+      <Router>
+        <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public Authentication Routes (Prevent logged-in users from seeing them) */}
               <Route 
@@ -94,7 +91,6 @@ function App() {
             </Routes>
           </Suspense>
         </Router>
-      </SocketProvider>
       <Toaster />
     </ThemeProvider>
   )
