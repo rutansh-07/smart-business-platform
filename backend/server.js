@@ -1,10 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './config/db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Load environment variables
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables relative to this file
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+import connectDB from './config/db.js';
 
 // Connect to Database
 connectDB();
@@ -24,11 +30,6 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
