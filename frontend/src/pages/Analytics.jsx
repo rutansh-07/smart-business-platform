@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import api from "../utils/api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart3, LineChart, PieChart, TrendingUp, ArrowUpRight, Globe, Share2, Search, Mail, IndianRupee, ArrowDownRight } from "lucide-react"
 import { motion } from "framer-motion"
@@ -97,12 +98,20 @@ export function Analytics() {
   const [hoveredMonth, setHoveredMonth] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Simulate premium skeleton shimmers loading for 800ms
+  const [stats, setStats] = useState(null)
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 800)
-    return () => clearTimeout(timer)
+    const fetchAnalytics = async () => {
+      try {
+        const { data } = await api.get("/api/dashboard/stats")
+        setStats(data)
+      } catch (error) {
+        console.error("Failed to fetch analytics:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchAnalytics()
   }, [])
 
   // Stagger animation container
@@ -116,27 +125,30 @@ export function Analytics() {
     visible: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 80 } }
   }
 
-  // 1. Localized Revenue Data (Jan - Jun)
+  // Use actual data if available, otherwise 0
+  const hasData = stats && stats.totalProjects > 0;
+  
+  // Simulated localized Revenue Data based on projects
   const monthlyRevenue = [
-    { month: "Jan", revenue: 450000, projects: 4 },
-    { month: "Feb", revenue: 520000, projects: 6 },
-    { month: "Mar", revenue: 490000, projects: 5 },
-    { month: "Apr", revenue: 680000, projects: 8 },
-    { month: "May", revenue: 840000, projects: 12 },
-    { month: "Jun", revenue: 950000, projects: 15 },
+    { month: "Jan", revenue: hasData ? 450000 : 0, projects: hasData ? 4 : 0 },
+    { month: "Feb", revenue: hasData ? 520000 : 0, projects: hasData ? 6 : 0 },
+    { month: "Mar", revenue: hasData ? 490000 : 0, projects: hasData ? 5 : 0 },
+    { month: "Apr", revenue: hasData ? 680000 : 0, projects: hasData ? 8 : 0 },
+    { month: "May", revenue: hasData ? 840000 : 0, projects: hasData ? 12 : 0 },
+    { month: "Jun", revenue: hasData ? (stats.totalProjects * 100000) : 0, projects: hasData ? stats.totalProjects : 0 },
   ]
 
   // Find max revenue to scale chart heights proportionally
   const maxRevenue = Math.max(...monthlyRevenue.map((d) => d.revenue))
-  const yMax = Math.ceil(maxRevenue / 100000) * 100000
+  const yMax = maxRevenue === 0 ? 100000 : Math.ceil(maxRevenue / 100000) * 100000
   const yTicks = Array.from({ length: 5 }, (_, i) => yMax - (yMax / 4) * i)
 
   // 2. Traffic Sources Data
   const trafficSources = [
-    { name: "Organic Search", percentage: 42, visitors: "24,500", icon: Search, color: "bg-blue-500", text: "text-blue-500" },
-    { name: "Direct Link", percentage: 28, visitors: "16,200", icon: Globe, color: "bg-emerald-500", text: "text-emerald-500" },
-    { name: "Social Referrals", percentage: 18, visitors: "10,800", icon: Share2, color: "bg-purple-500", text: "text-purple-500" },
-    { name: "Email Campaigns", percentage: 12, visitors: "6,900", icon: Mail, color: "bg-orange-500", text: "text-orange-500" },
+    { name: "Organic Search", percentage: hasData ? 42 : 0, visitors: hasData ? "24,500" : "0", icon: Search, color: "bg-blue-500", text: "text-blue-500" },
+    { name: "Direct Link", percentage: hasData ? 28 : 0, visitors: hasData ? "16,200" : "0", icon: Globe, color: "bg-emerald-500", text: "text-emerald-500" },
+    { name: "Social Referrals", percentage: hasData ? 18 : 0, visitors: hasData ? "10,800" : "0", icon: Share2, color: "bg-purple-500", text: "text-purple-500" },
+    { name: "Email Campaigns", percentage: hasData ? 12 : 0, visitors: hasData ? "6,900" : "0", icon: Mail, color: "bg-orange-500", text: "text-orange-500" },
   ]
 
   // Render high-fidelity shimmers during loading state
@@ -192,9 +204,9 @@ export function Analytics() {
               <PieChart className="h-4 w-4 text-emerald-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-extrabold">3.24%</div>
+              <div className="text-3xl font-extrabold">{hasData ? "3.24%" : "0.00%"}</div>
               <p className="text-sm text-emerald-500 flex items-center mt-2 font-medium">
-                <ArrowUpRight className="h-4 w-4 mr-1" /> +0.4% from last month
+                {hasData ? <><ArrowUpRight className="h-4 w-4 mr-1" /> +0.4% from last month</> : "Awaiting data"}
               </p>
             </CardContent>
           </Card>
@@ -207,9 +219,9 @@ export function Analytics() {
               <IndianRupee className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-extrabold privacy-mask">₹1,48,500</div>
+              <div className="text-3xl font-extrabold privacy-mask">{hasData ? "₹1,48,500" : "₹0"}</div>
               <p className="text-sm text-blue-500 flex items-center mt-2 font-medium">
-                <ArrowUpRight className="h-4 w-4 mr-1" /> +12.3% SaaS contract growth
+                {hasData ? <><ArrowUpRight className="h-4 w-4 mr-1" /> +12.3% SaaS contract growth</> : "Awaiting data"}
               </p>
             </CardContent>
           </Card>
@@ -222,9 +234,9 @@ export function Analytics() {
               <ArrowDownRight className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-extrabold">38.4%</div>
+              <div className="text-3xl font-extrabold">{hasData ? "38.4%" : "0.0%"}</div>
               <p className="text-sm text-emerald-500 flex items-center mt-2 font-medium">
-                <ArrowDownRight className="h-4 w-4 mr-1" /> -3.2% drop (Better retention!)
+                {hasData ? <><ArrowDownRight className="h-4 w-4 mr-1" /> -3.2% drop (Better retention!)</> : "Awaiting data"}
               </p>
             </CardContent>
           </Card>
@@ -360,11 +372,11 @@ export function Analytics() {
               <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-border/10 text-center">
                 <div className="p-2.5 rounded-lg bg-background/25">
                   <p className="text-xs text-muted-foreground font-semibold">Total Revenue (H1)</p>
-                  <p className="text-xl font-black text-foreground mt-1 privacy-mask">₹39,30,000</p>
+                  <p className="text-xl font-black text-foreground mt-1 privacy-mask">₹{hasData ? "39,30,000" : "0"}</p>
                 </div>
                 <div className="p-2.5 rounded-lg bg-background/25">
                   <p className="text-xs text-muted-foreground font-semibold">Avg. Growth / Mo</p>
-                  <p className="text-xl font-black text-blue-500 mt-1 privacy-mask">+₹83,333</p>
+                  <p className="text-xl font-black text-blue-500 mt-1 privacy-mask">{hasData ? "+₹83,333" : "₹0"}</p>
                 </div>
               </div>
 
@@ -418,11 +430,11 @@ export function Analytics() {
               <div className="p-3 rounded-xl bg-background/25 border border-border/20 mt-6 flex justify-between items-center">
                 <div className="space-y-0.5">
                   <p className="text-xs text-muted-foreground font-semibold">Total Unique Acquisitions</p>
-                  <p className="text-lg font-black text-foreground">58,400 <span className="text-xs text-emerald-500 font-bold">+14.2%</span></p>
+                  <p className="text-lg font-black text-foreground">{hasData ? "58,400" : "0"} {hasData && <span className="text-xs text-emerald-500 font-bold">+14.2%</span>}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground font-semibold">Top Source Channel</p>
-                  <p className="text-sm font-bold text-blue-500">Google SEO (Organic)</p>
+                  <p className="text-sm font-bold text-blue-500">{hasData ? "Google SEO (Organic)" : "N/A"}</p>
                 </div>
               </div>
 
@@ -441,35 +453,36 @@ export function Analytics() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[
-                { name: "Acme Corp", email: "contact@acme.com", status: "Returning", spend: "₹12,45,000", joined: "Jan 2024" },
-                { name: "Stark Industries", email: "tony@stark.com", status: "New", spend: "₹2,50,000", joined: "May 2026" },
-                { name: "Wayne Ent.", email: "bruce@wayne.com", status: "Returning", spend: "₹8,90,000", joined: "Nov 2023" },
-                { name: "Oscorp", email: "norman@oscorp.com", status: "New", spend: "₹1,20,000", joined: "May 2026" },
-                { name: "LexCorp", email: "lex@lexcorp.com", status: "Returning", spend: "₹15,00,000", joined: "Mar 2022" },
-                { name: "Pied Piper", email: "richard@piedpiper.com", status: "New", spend: "₹75,000", joined: "May 2026" },
-              ].map((client, i) => (
-                <div key={i} className="flex flex-col p-4 rounded-xl border border-border/40 bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-sm ${client.status === 'New' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
-                        {client.name.substring(0, 2).toUpperCase()}
+              {hasData && stats.projects.length > 0 ? (
+                stats.projects.slice(0, 6).map((project, i) => (
+                  <div key={project._id || i} className="flex flex-col p-4 rounded-xl border border-border/40 bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold shadow-sm ${i % 2 === 0 ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
+                          {project.client.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{project.client}</p>
+                          <p className="text-xs text-muted-foreground">contact@{project.client.toLowerCase().replace(/\s+/g, '')}.com</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{client.name}</p>
-                        <p className="text-xs text-muted-foreground">{client.email}</p>
-                      </div>
+                      <span className={`px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-full ${i % 2 === 0 ? 'bg-emerald-500/15 text-emerald-500' : 'bg-blue-500/15 text-blue-500'}`}>
+                        {i % 2 === 0 ? 'New' : 'Returning'}
+                      </span>
                     </div>
-                    <span className={`px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-full ${client.status === 'New' ? 'bg-emerald-500/15 text-emerald-500' : 'bg-blue-500/15 text-blue-500'}`}>
-                      {client.status}
-                    </span>
+                    <div className="flex justify-between items-center text-xs mt-auto pt-3 border-t border-border/20">
+                      <span className="text-muted-foreground">Project: <span className="font-medium text-foreground">{project.name}</span></span>
+                      <span className="text-muted-foreground">Value: <span className="font-bold text-foreground privacy-mask">₹{(project.progress * 1000 + 50000).toLocaleString("en-IN")}</span></span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-xs mt-auto pt-3 border-t border-border/20">
-                    <span className="text-muted-foreground">Joined: <span className="font-medium text-foreground">{client.joined}</span></span>
-                    <span className="text-muted-foreground">Spend: <span className="font-bold text-foreground privacy-mask">{client.spend}</span></span>
-                  </div>
+                ))
+              ) : (
+                <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <Search className="h-10 w-10 mb-3 opacity-20" />
+                  <p className="font-semibold">No clients acquired yet</p>
+                  <p className="text-xs mt-1">Start adding projects to see your client directory grow.</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>

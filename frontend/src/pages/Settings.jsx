@@ -412,6 +412,7 @@ export function Settings() {
                         </motion.div>
                       </div>
                     </form>
+                  </CardContent>
                 </Card>
 
                 {user?.role === "admin" && (

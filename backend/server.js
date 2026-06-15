@@ -37,10 +37,21 @@ app.use('/api/dashboard', dashboardRoutes);
 // Make uploads folder static
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
-// Basic Route to test the server
-app.get('/', (req, res) => {
-  res.send('Smart Business Management Platform API is running!');
-});
+// Serve Frontend in Production for Unified Deployment
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder to the Vite build output
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+  // Any route that is not an API route will be redirected to the React index.html
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'))
+  );
+} else {
+  // Basic Route to test the server in development
+  app.get('/', (req, res) => {
+    res.send('Smart Business Management Platform API is running in Development mode!');
+  });
+}
 
 import http from 'http';
 import { initSocket } from './socket.js';

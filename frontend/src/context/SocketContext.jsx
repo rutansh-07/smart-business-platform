@@ -11,8 +11,8 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   
   useEffect(() => {
-    // Determine the backend URL
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    // Determine the backend URL: Use localhost for dev, default to same origin for production monolithic deployment
+    const backendUrl = import.meta.env.PROD ? undefined : "http://localhost:5000";
     
     // Connect to Socket.IO server
     const newSocket = io(backendUrl);
