@@ -28,6 +28,7 @@ export const markAsRead = async (req, res) => {
 };
 
 import Workspace from '../models/Workspace.js';
+import User from '../models/User.js';
 
 // Helper to broadcast notifications to all workspace members except sender
 export const createWorkspaceNotification = async (workspaceId, senderId, action, entityTitle) => {
@@ -35,10 +36,12 @@ export const createWorkspaceNotification = async (workspaceId, senderId, action,
     const workspace = await Workspace.findById(workspaceId);
     if (!workspace) return;
     
-    const notifications = workspace.members
-      .filter((m) => m.user.toString() !== senderId.toString())
+    const members = await User.find({ workspaceId });
+    
+    const notifications = members
+      .filter((m) => m._id.toString() !== senderId.toString())
       .map((m) => ({
-        recipient: m.user,
+        recipient: m._id,
         sender: senderId,
         workspaceId,
         action,
