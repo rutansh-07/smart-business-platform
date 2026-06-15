@@ -88,6 +88,20 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
+
+    if (error.message.includes('bad auth')) {
+      console.error(
+        '\nMongoDB authentication failed. Check backend/.env:\n' +
+          '  1. Atlas → Database Access → verify username/password\n' +
+          '  2. Atlas → Network Access → allow your IP (or 0.0.0.0/0)\n' +
+          '  3. Copy a fresh connection string into MONGO_URI\n'
+      );
+    } else if (error.message.includes('querySrv')) {
+      console.error(
+        '\nMongoDB DNS lookup failed. Check your internet connection or VPN.\n'
+      );
+    }
+
     process.exit(1);
   }
 };
