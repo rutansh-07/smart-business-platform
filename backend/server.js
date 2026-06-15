@@ -25,8 +25,10 @@ import taskRoutes from './routes/taskRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
@@ -37,16 +39,17 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // Make uploads folder static
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve Frontend in Production for Unified Deployment
 if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../frontend/dist');
   // Set static folder to the Vite build output
-  app.use(express.static(path.join(__dirname, './frontend/dist')));
+  app.use(express.static(frontendPath));
 
   // Any route that is not an API route will be redirected to the React index.html
   app.get('*', (req, res) =>
-    res.sendFile(path.resolve(__dirname, './frontend', 'dist', 'index.html'))
+    res.sendFile(path.join(frontendPath, 'index.html'))
   );
 } else {
   // Basic Route to test the server in development

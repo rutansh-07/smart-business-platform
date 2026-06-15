@@ -4,10 +4,15 @@ import path from 'path';
 import fs from 'fs';
 import { protect } from '../middleware/authMiddleware.js';
 
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const router = express.Router();
 
-// Ensure uploads folder exists
-const uploadDir = 'uploads/';
+// Ensure uploads folder exists in backend directory
+const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -65,7 +70,7 @@ router.post('/', protect, (req, res) => {
     }
 
     // Return the path relative to the server so frontend can display it
-    res.send(`/${req.file.path.replace(/\\/g, '/')}`);
+    res.send(`/uploads/${req.file.filename}`);
   });
 });
 
