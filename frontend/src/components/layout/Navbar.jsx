@@ -24,6 +24,7 @@ export function Navbar() {
   const location = useLocation();
 
   const [theme, setTheme] = useState(() => localStorage.getItem("smartbiz_theme") || "dark");
+  const [colorblind, setColorblind] = useState(() => localStorage.getItem("smartbiz_colorblind") === "true");
   const [privacyMask, setPrivacyMask] = useState(() => localStorage.getItem("smartbiz_privacy") === "true");
 
   useEffect(() => {
@@ -36,6 +37,10 @@ export function Navbar() {
     localStorage.setItem("smartbiz_theme", theme);
   }, [theme]);
 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-colorblind", colorblind ? "true" : "false");
+    localStorage.setItem("smartbiz_colorblind", colorblind ? "true" : "false");
+  }, [colorblind]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-privacy-mask", privacyMask ? "true" : "false");
