@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Loader2, Zap, Eye, EyeOff } from "lucide-react"
+import { Loader2, Eye, EyeOff } from "lucide-react"
+import { Logo } from "../components/ui/Logo"
 import { motion } from "framer-motion"
 import api from "../utils/api"
 import { toast } from "sonner"
@@ -45,7 +46,7 @@ export function Login() {
       >
         <div className="flex items-center gap-2.5 mb-3">
           <div className="p-2 bg-primary/10 rounded-xl border border-primary/20">
-            <Building2 className="h-6 w-6 text-primary" />
+            <Logo className="h-6 w-6 text-primary" />
           </div>
           <span className="text-2xl font-extrabold tracking-tight">SmartBiz</span>
         </div>
@@ -61,7 +62,7 @@ export function Login() {
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         <Card className="w-full shadow-2xl border border-border/40 bg-card/80 backdrop-blur-xl">
-          <CardHeader className="space-y-1 pb-5">
+          <CardHeader className="space-y-1 pb-5 text-center">
             <CardTitle className="text-xl font-bold tracking-tight">Welcome back</CardTitle>
             <CardDescription>
               Sign in to your account to continue
@@ -140,17 +141,6 @@ export function Login() {
             </p>
           </CardFooter>
         </Card>
-
-        {/* Trust badge */}
-        <motion.div
-          className="flex items-center justify-center gap-1.5 mt-5 text-xs text-muted-foreground"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Zap className="h-3 w-3 text-primary/60" />
-          <span>Secured with JWT authentication & bcrypt encryption</span>
-        </motion.div>
       </motion.div>
     </div>
   )

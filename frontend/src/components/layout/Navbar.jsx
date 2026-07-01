@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Building2, UserCircle, LogOut, Settings as SettingsIcon, User, SlidersHorizontal, Check, Eye, EyeOff, LayoutDashboard, Briefcase, BarChart3, ChevronDown, Crown, Users } from "lucide-react";
+import { UserCircle, LogOut, Settings as SettingsIcon, User, SlidersHorizontal, Check, Eye, EyeOff, LayoutDashboard, Briefcase, BarChart3, ChevronDown, Crown, Users } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -130,7 +131,7 @@ export function Navbar() {
           /* MOBILE — logged out */
           <div className="flex lg:hidden w-full items-center justify-between">
             <div className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
+              <Logo className="h-5 w-5 text-primary" />
               <span className="font-bold text-base tracking-tight text-primary">SmartBiz</span>
             </div>
             <div className="flex gap-2">
@@ -151,7 +152,7 @@ export function Navbar() {
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <div className="p-1.5 bg-primary/10 rounded-lg">
-                <Building2 className="h-5 w-5 text-primary" />
+                <Logo className="h-5 w-5 text-primary" />
               </div>
               <span className="font-bold text-lg tracking-tight">SmartBiz</span>
             </Link>

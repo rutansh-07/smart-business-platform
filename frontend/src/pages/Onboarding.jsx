@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Briefcase, Users, ArrowRight, ArrowLeft, Check, Copy, Loader2, Sparkles, Mail } from "lucide-react"
+import { Briefcase, Users, ArrowRight, ArrowLeft, Check, Copy, Loader2, Sparkles, Mail } from "lucide-react"
+import { Logo } from "../components/ui/Logo"
 import { motion, AnimatePresence } from "framer-motion"
 import api from "../utils/api"
 import { toast } from "sonner"
@@ -142,7 +143,7 @@ export function Onboarding() {
       >
         <div className="flex items-center gap-2.5 mb-2">
           <div className="p-2 bg-primary/10 rounded-xl border border-primary/20">
-            <Building2 className="h-6 w-6 text-primary" />
+            <Logo className="h-6 w-6 text-primary" />
           </div>
           <span className="text-2xl font-extrabold tracking-tight">SmartBiz</span>
         </div>
