@@ -213,49 +213,6 @@ html[data-theme="sepia"] {
   --ring: #a0522d;
 }
 
-/* Colorblind Mode Override */
-html[data-colorblind="true"] {
-  /* Financial Gain Colors: Swap from Green to Blue */
-  .text-green-500,
-  .text-emerald-500,
-  .text-green-400,
-  .text-emerald-400,
-  .text-green-600,
-  .text-emerald-600 {
-    color: #2563eb !important; /* Vivid Blue */
-  }
-  .bg-green-500,
-  .bg-emerald-500,
-  .bg-green-600,
-  .bg-emerald-600 {
-    background-color: #2563eb !important;
-  }
-  .border-green-500,
-  .border-emerald-500 {
-    border-color: #2563eb !important;
-  }
-
-  /* Financial Loss Colors: Swap from Red to vivid Orange */
-  .text-red-500,
-  .text-rose-500,
-  .text-red-400,
-  .text-rose-400,
-  .text-destructive {
-    color: #ea580c !important; /* Vivid Orange */
-  }
-  .bg-red-500,
-  .bg-rose-500,
-  .bg-destructive,
-  .bg-red-600,
-  .bg-rose-600 {
-    background-color: #ea580c !important;
-  }
-  .border-red-500,
-  .border-rose-500,
-  .border-destructive {
-    border-color: #ea580c !important;
-  }
-}
 
 /* Privacy Mask Blur Effect */
 html[data-privacy-mask="true"] .privacy-mask {

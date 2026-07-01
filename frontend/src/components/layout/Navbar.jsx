@@ -24,7 +24,6 @@ export function Navbar() {
   const location = useLocation();
 
   const [theme, setTheme] = useState(() => localStorage.getItem("smartbiz_theme") || "dark");
-  const [colorblind, setColorblind] = useState(() => localStorage.getItem("smartbiz_colorblind") === "true");
   const [privacyMask, setPrivacyMask] = useState(() => localStorage.getItem("smartbiz_privacy") === "true");
 
   useEffect(() => {
@@ -37,10 +36,6 @@ export function Navbar() {
     localStorage.setItem("smartbiz_theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-colorblind", colorblind ? "true" : "false");
-    localStorage.setItem("smartbiz_colorblind", colorblind ? "true" : "false");
-  }, [colorblind]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-privacy-mask", privacyMask ? "true" : "false");
@@ -251,19 +246,6 @@ export function Navbar() {
                     <div className="h-px bg-border -mx-4" />
 
                     <div className="flex flex-col gap-3">
-                      <label className="flex items-center justify-between cursor-pointer group">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">Colorblind Mode</span>
-                          <span className="text-[10px] text-muted-foreground">Gain: Blue / Loss: Orange</span>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={colorblind}
-                          onChange={(e) => setColorblind(e.target.checked)}
-                          className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                        />
-                      </label>
-
                       <label className="flex items-center justify-between cursor-pointer group">
                         <div className="flex flex-col gap-0.5">
                           <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">Privacy Mask</span>
