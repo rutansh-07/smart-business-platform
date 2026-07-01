@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,13 @@ export function Login() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isReadOnly, setIsReadOnly] = useState(true)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReadOnly(false), 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -75,12 +81,15 @@ export function Login() {
                 <label className="text-sm font-medium" htmlFor="email">Email address</label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="ravi.kumar@smartbiz.in"
                   required
                   className="bg-background/50 h-10"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  readOnly={isReadOnly}
+                  onFocus={() => setIsReadOnly(false)}
                 />
               </div>
 
@@ -94,12 +103,15 @@ export function Login() {
                 <div className="relative">
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
                     className="bg-background/50 h-10 pr-10"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    readOnly={isReadOnly}
+                    onFocus={() => setIsReadOnly(false)}
                   />
                   <button
                     type="button"

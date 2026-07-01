@@ -17,8 +17,14 @@ export function Join() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [workspaceName, setWorkspaceName] = useState(null)
-  
+  const [isReadOnly, setIsReadOnly] = useState(true)
+
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReadOnly(false), 100)
+    return () => clearTimeout(timer)
+  }, [])
   const [searchParams] = useSearchParams()
   const token = searchParams.get("token")
 
@@ -97,12 +103,15 @@ export function Join() {
                 <label className="text-sm font-medium" htmlFor="name">Full name</label>
                 <Input
                   id="name"
+                  name="name"
                   type="text"
                   required
                   placeholder="Ravi Kumar"
                   className="bg-background/50 h-10"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  readOnly={isReadOnly}
+                  onFocus={() => setIsReadOnly(false)}
                 />
               </div>
 
@@ -110,12 +119,15 @@ export function Join() {
                 <label className="text-sm font-medium" htmlFor="email">Email address</label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   required
                   placeholder="ravi.kumar@smartbiz.in"
                   className="bg-background/50 h-10"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  readOnly={isReadOnly}
+                  onFocus={() => setIsReadOnly(false)}
                 />
               </div>
 
@@ -124,12 +136,15 @@ export function Join() {
                 <div className="relative">
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
                     required
                     placeholder="At least 6 characters"
                     className="bg-background/50 h-10 pr-10"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    readOnly={isReadOnly}
+                    onFocus={() => setIsReadOnly(false)}
                   />
                   <button
                     type="button"
